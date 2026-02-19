@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course - ITBook</title>
+    <link rel="icon" href="/img/logo.png" type="image/png"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/course-detail.css">
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="navbar-container">
+        <div class="navbar-brand" onclick="window.location.href='courses.html'">
+            <div class="logo-wrapper">
+                <img src="/img/logo.png" class="logo">
+            </div>
+            <div class="brand-text">
+                <h2>ITBook</h2>
+                <span class="brand-tagline">Learn. Build. Excel.</span>
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="#" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/html/courses.html" class="nav-link active">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Courses</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-info-circle"></i>
+                <span>About</span>
+            </a>
+        </div>
+        <div class="user-menu">
+            <button class="user-btn">
+                <div class="user-avatar">U</div>
+                <span>User</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="user-dropdown">
+                <a href="#"><i class="fas fa-book"></i> My Courses</a>
+                <a href="#"><i class="fas fa-user-circle"></i> Account</a>
+                <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                <div class="dropdown-divider"></div>
+                <a href="/login.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Loading State -->
+<div id="loadingIndicator" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Loading course details...</p>
+</div>
+
+<!-- Course Hero -->
+<div class="course-hero" id="courseHeader" style="display: none;">
+    <div class="hero-bg" id="heroBackground">
+        <div class="grid-pattern"></div>
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+    </div>
+    <div class="hero-container">
+        <div class="course-badge">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Professional Course</span>
+        </div>
+        <h1 id="courseTitle" class="course-hero-title">Course Title</h1>
+        <p id="courseDesc" class="course-hero-desc">Course Description</p>
+        <div class="hero-meta">
+            <div class="meta-chip">
+                <i class="fas fa-users"></i>
+                <span><span id="courseStudents">0</span> Students</span>
+            </div>
+            <div class="meta-chip">
+                <i class="fas fa-star"></i>
+                <span>4.8 Rating</span>
+            </div>
+            <div class="meta-chip">
+                <i class="fas fa-clock"></i>
+                <span>12 Weeks</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="course-container" id="courseContainer" style="display: none;">
+    <div class="content-wrapper">
+        <!-- Tabs Navigation -->
+        <div class="tabs-nav">
+            <button class="tab-nav-btn active" onclick="switchTab('overview')">
+                <i class="fas fa-info-circle"></i>
+                <span>Overview</span>
+            </button>
+            <button class="tab-nav-btn" onclick="switchTab('materials')">
+                <i class="fas fa-file-pdf"></i>
+                <span>Materials</span>
+            </button>
+            <button class="tab-nav-btn" onclick="switchTab('chat')">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+                <span class="chat-badge">12</span>
+            </button>
+        </div>
+
+        <div class="content-grid">
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <!-- Overview Tab -->
+                <div id="overview" class="tab-content active">
+                    <div class="content-card">
+                        <h2 class="content-title">About This Course</h2>
+                        <p id="overviewDesc" class="content-text">Learn the fundamentals of programming with hands-on projects and real-world examples. This course covers essential concepts and best practices.</p>
+
+                        <h3 class="content-subtitle">What You'll Learn</h3>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check-circle"></i> Core programming concepts and paradigms</li>
+                            <li><i class="fas fa-check-circle"></i> Data structures and algorithms</li>
+                            <li><i class="fas fa-check-circle"></i> Best coding practices and design patterns</li>
+                            <li><i class="fas fa-check-circle"></i> Real-world project development</li>
+                        </ul>
+
+                        <h3 class="content-subtitle">Requirements</h3>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check-circle"></i> Basic computer knowledge</li>
+                            <li><i class="fas fa-check-circle"></i> Commitment to learning 2-3 hours per week</li>
+                            <li><i class="fas fa-check-circle"></i> Passion for technology</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Materials Tab -->
+                <div id="materials" class="tab-content">
+                    <div class="materials-grid">
+                        <div class="material-card">
+                            <div class="material-header">
+                                <div class="material-icon">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <div>
+                                    <h3 class="material-title">Course Textbook</h3>
+                                    <p class="material-subtitle">Complete reference guide</p>
+                                </div>
+                            </div>
+                            <div class="material-body">
+                                <iframe id="bookFrame" src="" class="material-iframe"></iframe>
+                            </div>
+                        </div>
+
+                        <div class="material-card">
+                            <div class="material-header">
+                                <div class="material-icon">
+                                    <i class="fas fa-presentation"></i>
+                                </div>
+                                <div>
+                                    <h3 class="material-title">Lecture Slides</h3>
+                                    <p class="material-subtitle">Visual presentation materials</p>
+                                </div>
+                            </div>
+                            <div class="material-body">
+                                <iframe id="slidesFrame" src="" class="material-iframe"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Tab -->
+                <div id="chat" class="tab-content">
+                    <div class="chat-container">
+                        <div class="chat-header">
+                            <div>
+                                <h3 class="chat-title">Course Discussion</h3>
+                                <p class="chat-subtitle">Connect with fellow learners</p>
+                            </div>
+                            <div class="online-badge">
+                                <i class="fas fa-circle"></i>
+                                <span>12 Online</span>
+                            </div>
+                        </div>
+
+                        <div class="messages" id="messageArea">
+                            <div class="message">
+                                <div class="message-avatar">J</div>
+                                <div class="message-body">
+                                    <div class="message-header">
+                                        <strong>John Doe</strong>
+                                        <span class="message-time">10:30 AM</span>
+                                    </div>
+                                    <p class="message-text">Great course! Really helpful content.</p>
+                                </div>
+                            </div>
+                            <div class="message">
+                                <div class="message-avatar">S</div>
+                                <div class="message-body">
+                                    <div class="message-header">
+                                        <strong>Sarah Smith</strong>
+                                        <span class="message-time">10:45 AM</span>
+                                    </div>
+                                    <p class="message-text">Does anyone have the solution to assignment 2?</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chat-input-area">
+                            <input type="text" id="chatInput" placeholder="Type your message..." class="chat-input">
+                            <button onclick="sendMessage()" class="send-btn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="enroll-card">
+                    <button id="enrollButton" class="enroll-btn" onclick="enrollCourse()">
+                        <i id="enrollButtonIcon" class="fas fa-plus"></i>
+                        <span id="enrollButtonText">Enroll Now</span>
+                    </button>
+                    <p id="enrollNote" class="enroll-note">Join 50,000+ students learning today</p>
+                </div>
+
+                <div class="info-card">
+                    <h3 class="info-title">Course Details</h3>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <label>Duration</label>
+                                <p>12 Weeks</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-chart-line"></i>
+                            <div>
+                                <label>Level</label>
+                                <p>Intermediate</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-certificate"></i>
+                            <div>
+                                <label>Certificate</label>
+                                <p>Available</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-language"></i>
+                            <div>
+                                <label>Language</label>
+                                <p>English</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+
+<!-- Error State -->
+<div id="errorMessage" class="error-state">
+    <i class="fas fa-exclamation-triangle"></i>
+    <h2>Course Not Found</h2>
+    <p>The course you're looking for doesn't exist or has been removed.</p>
+    <button onclick="window.location.href='courses.html'" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Courses</span>
+    </button>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <p>&copy; 2026 ITBOOK. All Rights Reserved.</p>
+    </div>
+</footer>
+
+<script src="/js/course-detail.js"></script>
+<script src="/js/session.js"></script>
+</body>
+</html>

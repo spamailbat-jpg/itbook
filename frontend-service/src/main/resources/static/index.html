@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ITBook</title>
+</head>
+<body>
+<script>
+    const token = localStorage.getItem('token');
+    if (token) {
+        // Logged in - go to home/dashboard
+        window.location.href = '/account.html';
+    } else {
+        // Not logged in - go to login
+        window.location.href = '/login.html';
+    }
+</script>
+</body>
+</html>

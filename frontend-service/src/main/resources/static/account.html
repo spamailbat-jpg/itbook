@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account - ITBook</title>
+    <link rel="icon" href="/img/logo.png" type="image/png"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/account.css">
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="navbar-container">
+        <div class="navbar-brand">
+            <img src="/img/logo.png" alt="ITBook" class="logo">
+            <h2>ITBook</h2>
+        </div>
+        <div class="nav-links">
+            <a href="#" class="nav-link">Home</a>
+            <a href="/courses.html" class="nav-link">Courses</a>
+            <a href="/about.html" class="nav-link">About</a>
+        </div>
+        <div class="user-menu">
+            <button class="user-btn">
+                <span id="navUserName">User</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="user-dropdown">
+                <a href="#"><i class="fas fa-book"></i> My Courses</a>
+                <a href="/account.html" class="active"><i class="fas fa-user-circle"></i> Account</a>
+                <a href="#" class="logout" onclick="logout(); return false;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="header-content">
+        <h1>My Account</h1>
+        <p>Manage your profile and settings</p>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="account-grid">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="profile-card">
+                <div class="profile-avatar" id="avatarDisplay">
+                    <i class="fas fa-user"></i>
+                </div>
+                <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                <button type="button" onclick="document.getElementById('avatarUpload').click()" class="btn-upload">Upload Photo</button>
+                <h3 id="userName">User Name</h3>
+                <p id="userEmail">user@example.com</p>
+            </div>
+            
+            <nav class="settings-nav">
+                <button class="settings-btn active" onclick="switchSection('profile')">
+                    <i class="fas fa-user"></i> Profile
+                </button>
+                <button class="settings-btn" onclick="switchSection('password')">
+                    <i class="fas fa-lock"></i> Password
+                </button>
+            </nav>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Profile Section -->
+            <section id="profile" class="settings-section active">
+                <div class="section-header">
+                    <h2>Profile Information</h2>
+                    <p>Update your profile details</p>
+                </div>
+                
+                <form class="form" id="profileForm" method="POST">
+                    <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" name="bio" rows="4" placeholder="Tell us about yourself..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="your@email.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" placeholder="Your Full Name">
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </form>
+            </section>
+            
+            <!-- Password Section -->
+            <section id="password" class="settings-section">
+                <div class="section-header">
+                    <h2>Change Password</h2>
+                    <p>Update your password regularly for security</p>
+                </div>
+                
+                <form class="form">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password">
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Update Password</button>
+                </form>
+            </section>
+            
+            <!-- Danger Zone -->
+            <section class="danger-zone">
+                <h3>Danger Zone</h3>
+                <p>Irreversible actions</p>
+                <button class="btn-danger" onclick="deleteAccount()">Delete Account</button>
+            </section>
+        </main>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <p>&copy; 2024 ITBOOK. All Rights Reserved.</p>
+    </div>
+</footer>
+
+<script src="/js/session.js"></script>
+<script>
+    function switchSection(sectionName) {
+    document.querySelectorAll('.settings-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.querySelectorAll('.settings-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    document.getElementById(sectionName).classList.add('active');
+    event.target.closest('.settings-btn').classList.add('active');
+}
+
+async function deleteAccount() {
+    if (confirm('Are you sure? This action cannot be undone.')) {
+        const token = localStorage.getItem('token');
+
+        const response = await fetch(`${GATEWAY_URL}/user-service/api/auth/delete-account`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert('Account deleted successfully');
+            window.location.href = '/login.html';
+        } else {
+            alert('Error: ' + (data.error || 'Failed to delete account'));
+        }
+    }
+}
+
+document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem('token');
+    const fullName = document.getElementById('fullName').value;
+
+    const response = await fetch(`${GATEWAY_URL}/user-service/api/auth/update`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            fullName: fullName,
+            bio: document.getElementById('bio').value
+        })
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+        // Update DOM immediately
+        document.getElementById('userName').textContent = fullName;
+        document.getElementById('navUserName').textContent = fullName;
+        alert('Profile updated successfully');
+    } else {
+        alert('Error: ' + (data.error || 'Failed to update profile'));
+    }
+});
+
+    // Password form handler
+document.querySelector('#password form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${GATEWAY_URL}/user-service/api/auth/change-password`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            currentPassword: document.getElementById('currentPassword').value,
+            newPassword: document.getElementById('newPassword').value,
+            confirmPassword: document.getElementById('confirmPassword').value
+        })
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+        alert('Password updated successfully');
+        document.querySelector('#password form').reset();
+    } else {
+        alert('Error: ' + (data.error || 'Failed to update password'));
+    }
+});
+    // Avatar upload
+document.getElementById('avatarUpload').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${GATEWAY_URL}/user-service/api/auth/upload-avatar`, {
+        method: 'POST',
+        headers: {'Authorization': `Bearer ${token}`},
+        body: formData
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+        document.getElementById('avatarDisplay').innerHTML = `<img src="${GATEWAY_URL}${data.avatarUrl}" alt="Avatar">`;
+        alert('Avatar updated');
+    } else {
+        alert('Error: ' + (data.error || 'Upload failed'));
+    }
+});
+</script>
+</body>
+</html>

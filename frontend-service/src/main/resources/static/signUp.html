@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="/img/logowhite.png" type="image/png"/>
+  <link rel="stylesheet" type="text/css" href="/css/loginStyle.css">
+  <title>Sign Up</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+<div class="align">
+  <nav class="navbar">
+    <div class="logo">
+      <img src="/img/logowhite.png" alt="Logo">
+    </div>
+    <div class="site-name">
+      <b>[ ITBook ] <br></b>
+      <text>It's quick and easy.</text>
+    </div>
+  </nav>
+  <div>
+    <div>
+      <img src="/img/collage.jpg" alt="IT collage" class="Background-image">
+    </div>
+    <div class="card">
+      <div class="head">
+        <div></div>
+        <a name="login" href="/login.html">Login</a>
+        <a name="signUp" class="selected" href="signUp.html">Sign up</a>
+        <div></div>
+      </div>
+      <div>
+        <form class="formSignup" autocomplete="on">
+          <div class="inputs">
+            <div class="input">
+              <input name="email" type="email" placeholder="Email" required>
+              <img src="/img/icons/mail.svg">
+            </div>
+            <div class="input">
+              <input name="fullName" placeholder="Full Name" required>
+              <img src="/img/icons/user.svg">
+            </div>
+
+            <div class="input">
+              <input type="password" name="password" id="password" placeholder="Password" required>
+              <img src="/img/icons/pass.svg">
+              <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+            </div>
+            <div class="input">
+              <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" required>
+              <img src="/img/icons/pass.svg">
+              <i class="fas fa-eye toggle-password" id="toggleConfirmPassword"></i>
+            </div>
+            <br>
+          </div>
+          <button type="submit" style="margin-bottom:10px">Submit</button>
+          <a href="index.html" class="ff">Return To Home</a>
+        </form>
+      </div>
+    </div>
+    <script>
+      document.querySelector('.formSignup').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    try {
+        const gatewayUrl = localStorage.getItem('gatewayUrl') || `${window.location.protocol}//localhost:8765`;
+        const response = await fetch(`${gatewayUrl}/user-service/api/auth/signup`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                email: formData.get('email'),
+                fullName: formData.get('fullName'),
+                password: formData.get('password'),
+                confirmPassword: formData.get('confirmPassword')
+            })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert('Account created! Please login.');
+            window.location.href = '/login.html';
+        } else {
+            alert(data.message || 'Signup failed');
+        }
+    } catch (error) {
+        alert('Connection error. Please try again.');
+        console.error(error);
+    }
+});
+    </script>
+</body>
+</html>
