@@ -10,6 +10,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -45,10 +46,18 @@ public class CourseController {
 
     @PostMapping("/{courseId}/enroll/{userId}")
     public ResponseEntity<String> enrollUser(@PathVariable Long courseId, @PathVariable Long userId) {
+        if (courseService.getCourseById(courseId).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!userExists(userId)) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+
         if (courseService.enrollUser(userId, courseId)) {
             return ResponseEntity.ok("Successfully enrolled");
         }
-        return ResponseEntity.badRequest().body("Already enrolled or course not found");
+        return ResponseEntity.badRequest().body("Already enrolled");
     }
 
     @GetMapping("/{courseId}/enrolled/{userId}")
@@ -58,11 +67,17 @@ public class CourseController {
 
     @GetMapping("/user/{userId}/enrolled")
     public ResponseEntity<List<Enrollment>> getUserEnrollments(@PathVariable Long userId) {
+        if (!userExists(userId)) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
         return ResponseEntity.ok(courseService.getUserEnrollments(userId));
     }
 
     @GetMapping("/user/{userId}/courses")
     public ResponseEntity<List<Course>> getUserCourses(@PathVariable Long userId) {
+        if (!userExists(userId)) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
         return ResponseEntity.ok(courseService.getCoursesByUserId(userId));
     }
 
@@ -78,19 +93,36 @@ public class CourseController {
                 .distinct()
                 .collect(Collectors.toList());
 
+        List<UserBasicDto> users = fetchUsersByIds(userIds);
+        return ResponseEntity.ok(users);
+    }
+
+    private boolean userExists(Long userId) {
+        List<UserBasicDto> users = fetchUsersByIds(List.of(userId));
+        return users.stream().anyMatch(user -> userId.equals(user.getId()));
+    }
+
+    private List<UserBasicDto> fetchUsersByIds(List<Long> userIds) {
+        if (userIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         String ids = userIds.stream().map(String::valueOf).collect(Collectors.joining(","));
         String url = UriComponentsBuilder.fromHttpUrl(userServiceBaseUrl)
                 .path("/api/auth/internal/users")
                 .queryParam("ids", ids)
                 .toUriString();
 
-        ResponseEntity<List<UserBasicDto>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {}
-        );
-
-        return ResponseEntity.ok(response.getBody() == null ? Collections.emptyList() : response.getBody());
+        try {
+            ResponseEntity<List<UserBasicDto>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<>() {}
+            );
+            return response.getBody() == null ? Collections.emptyList() : response.getBody();
+        } catch (RestClientException e) {
+            return Collections.emptyList();
+        }
     }
 }

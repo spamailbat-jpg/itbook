@@ -20,6 +20,7 @@ public class Course {
     private String title;
     private String description;
     private String image;
+    @Transient
     private Integer students;
     private String bookUrl;  // Google Drive PDF link
     private String slidesUrl; // Google Drive slides link
