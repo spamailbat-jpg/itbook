@@ -1,9 +1,52 @@
 let courses = [];
+let myCoursesOnly = false;
+
+function isMyCoursesView() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('view') === 'my';
+}
+
+function updateCoursesHeader() {
+    const titleElement = document.querySelector('.section-title');
+    const subtitleElement = document.querySelector('.section-subtitle');
+
+    if (!titleElement || !subtitleElement) {
+        return;
+    }
+
+    if (myCoursesOnly) {
+        titleElement.textContent = 'My Courses';
+        subtitleElement.textContent = 'Courses you are enrolled in';
+    } else {
+        titleElement.textContent = 'Explore Courses';
+        subtitleElement.textContent = 'Find the perfect course to advance your career';
+    }
+}
 
 async function loadCourses() {
+    myCoursesOnly = isMyCoursesView();
+    updateCoursesHeader();
+
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+    if (myCoursesOnly && (!token || !user?.id)) {
+        alert('Please login to view your courses');
+        window.location.href = '/login.html';
+        return;
+    }
+
+    const endpoint = myCoursesOnly
+        ? `${GATEWAY_URL}/courses-service/api/courses/user/${user.id}/courses`
+        : `${GATEWAY_URL}/courses-service/api/courses`;
+
     try {
-        const response = await fetch(`${GATEWAY_URL}/courses-service/api/courses`);
+        const response = await fetch(endpoint, token ? {
+            headers: { 'Authorization': `Bearer ${token}` }
+        } : {});
+
         if (!response.ok) throw new Error('Failed to fetch courses');
+
         courses = await response.json();
         document.getElementById('loading').style.display = 'none';
         displayCourses(courses);
@@ -12,6 +55,7 @@ async function loadCourses() {
         document.getElementById('loading').innerHTML = '<div class="error-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load courses. Please try again later.</p></div>';
     }
 }
+
 async function enrollCourse(event, courseId) {
     event.stopPropagation();
 
@@ -56,7 +100,7 @@ function displayCourses(coursesToDisplay) {
     grid.innerHTML = '';
 
     if (coursesToDisplay.length === 0) {
-        grid.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>No courses found matching your search.</p></div>';
+        grid.innerHTML = `<div class="empty-state"><i class="fas fa-book-open"></i><p>${myCoursesOnly ? 'You are not enrolled in any courses yet.' : 'No courses found matching your search.'}</p></div>`;
         return;
     }
 
