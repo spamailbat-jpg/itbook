@@ -1059,3 +1059,46 @@ body {
     grid-template-columns: 1fr;
   }
 }
+.student-list {
+  list-style: none;
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.student-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.student-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--gradient-accent);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.student-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-info span {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.student-list-empty {
+  color: var(--text-light);
+  font-size: 14px;
+}

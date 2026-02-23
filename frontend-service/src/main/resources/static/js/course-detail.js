@@ -28,7 +28,48 @@ function updateEnrollButtonState(enrolled) {
     }
 }
 
-async function checkEnrollmentStatus(courseId) {
+function renderStudents(students) {
+    const studentsList = document.getElementById('studentsList');
+    if (!studentsList) {
+        return;
+    }
+
+    if (!students.length) {
+        studentsList.innerHTML = '<li class="student-list-empty">No students enrolled yet.</li>';
+        return;
+    }
+
+    studentsList.innerHTML = students.map((student) => {
+        const displayName = student.fullName || student.email || `User ${student.id}`;
+        const initials = (displayName.trim().charAt(0) || 'U').toUpperCase();
+        return `
+            <li class="student-item">
+                <div class="student-avatar">${initials}</div>
+                <div class="student-info">
+                    <strong>${displayName}</strong>
+                    <span>${student.email || 'No email available'}</span>
+                </div>
+            </li>
+        `;
+    }).join('');
+}
+
+async function loadEnrolledStudents(courseIdValue) {
+    try {
+        const response = await fetch(`${GATEWAY_URL}/courses-service/api/courses/${courseIdValue}/users`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch students');
+        }
+
+        const students = await response.json();
+        renderStudents(students);
+    } catch (error) {
+        console.error('Error loading enrolled students:', error);
+        renderStudents([]);
+    }
+}
+
+async function checkEnrollmentStatus(courseIdValue) {
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || 'null');
 
@@ -39,7 +80,7 @@ async function checkEnrollmentStatus(courseId) {
     }
 
     try {
-        const response = await fetch(`${GATEWAY_URL}/courses-service/api/courses/${courseId}/enrolled/${user.id}`, {
+        const response = await fetch(`${GATEWAY_URL}/courses-service/api/courses/${courseIdValue}/enrolled/${user.id}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -70,7 +111,10 @@ async function loadCourse() {
 
         currentCourse = await response.json();
         displayCourse(currentCourse);
-                await checkEnrollmentStatus(currentCourse.id);
+        await Promise.all([
+            checkEnrollmentStatus(currentCourse.id),
+            loadEnrolledStudents(currentCourse.id)
+        ]);
     } catch (error) {
         console.error('Error loading course:', error);
         showError();
@@ -127,11 +171,7 @@ function switchTab(tabName) {
 }
 
 async function enrollCourse() {
-    if (!currentCourse) {
-        alert('Course not loaded yet');
-        return;
-    }
- if (isUserEnrolled) {
+    if (!currentCourse || isUserEnrolled) {
         return;
     }
 
@@ -154,6 +194,7 @@ async function enrollCourse() {
             alert('Successfully enrolled!');
             isUserEnrolled = true;
             updateEnrollButtonState(true);
+            await loadCourse();
         } else {
             const message = await response.text();
             alert(message || 'Failed to enroll');
