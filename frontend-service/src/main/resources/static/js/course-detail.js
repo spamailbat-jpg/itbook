@@ -4,6 +4,167 @@ const GATEWAY_URL = window.localStorage.getItem('gatewayUrl') || window.ITBOOK_G
 
 let currentCourse = null;
 let isUserEnrolled = false;
+let stompClient = null;
+
+function getCurrentUser() {
+    return JSON.parse(localStorage.getItem('user') || 'null');
+}
+
+function escapeHtml(value) {
+    return (value || '').replace(/[&<>"]/g, (char) => {
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
+        return map[char] || char;
+    });
+}
+
+function formatTime(timestamp) {
+    if (!timestamp) {
+        return 'Now';
+    }
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) {
+        return 'Now';
+    }
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function setChatLockState(message) {
+    const input = document.getElementById('chatInput');
+    const sendButton = document.getElementById('sendButton');
+    const messageArea = document.getElementById('messageArea');
+
+    if (input) {
+        input.disabled = true;
+        input.placeholder = message;
+    }
+    if (sendButton) {
+        sendButton.disabled = true;
+    }
+    if (messageArea) {
+        messageArea.innerHTML = `<p class="student-list-empty">${escapeHtml(message)}</p>`;
+    }
+}
+
+function enableChatInput() {
+    const input = document.getElementById('chatInput');
+    const sendButton = document.getElementById('sendButton');
+
+    if (input) {
+        input.disabled = false;
+        input.placeholder = 'Type your message...';
+    }
+    if (sendButton) {
+        sendButton.disabled = false;
+    }
+}
+
+function appendMessage(message, currentUserId) {
+    const messageArea = document.getElementById('messageArea');
+    if (!messageArea) return;
+
+    const senderName = message.sender || `User ${message.userId || ''}`;
+    const initials = (senderName.trim().charAt(0) || 'U').toUpperCase();
+    const isMine = currentUserId && Number(message.userId) === Number(currentUserId);
+    const messageClass = isMine ? 'message sent' : 'message';
+
+    const content = message.content || '';
+    const type = message.type || 'CHAT';
+    if (type !== 'CHAT' && !content) {
+        return;
+    }
+
+    const renderedText = type === 'CHAT' ? escapeHtml(content) : `<em>${escapeHtml(content)}</em>`;
+
+    const msg = document.createElement('div');
+    msg.className = messageClass;
+    msg.innerHTML = `
+        <div class="message-avatar">${initials}</div>
+        <div class="message-body">
+            <div class="message-header">
+                <strong>${escapeHtml(senderName)}</strong>
+                <span class="message-time">${formatTime(message.timestamp)}</span>
+            </div>
+            <p class="message-text">${renderedText}</p>
+        </div>
+    `;
+
+    messageArea.appendChild(msg);
+    messageArea.scrollTop = messageArea.scrollHeight;
+}
+
+async function loadChatHistory(courseIdValue) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        setChatLockState('Login and enroll in this course to join chat.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${GATEWAY_URL}/chat-service/api/chat/courses/${courseIdValue}/messages`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.status === 403) {
+            setChatLockState('Only enrolled students can access this course chat.');
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error('Failed to load chat history');
+        }
+
+        const messages = await response.json();
+        const messageArea = document.getElementById('messageArea');
+        if (messageArea) {
+            messageArea.innerHTML = '';
+        }
+
+        const currentUser = getCurrentUser();
+        messages.forEach((message) => appendMessage(message, currentUser?.id));
+
+        if (!messages.length && messageArea) {
+            messageArea.innerHTML = '<p class="student-list-empty">No messages yet. Start the conversation.</p>';
+        }
+    } catch (error) {
+        console.error('Error loading chat history:', error);
+        setChatLockState('Chat service is unavailable right now.');
+    }
+}
+
+function connectCourseChat(courseIdValue) {
+    const token = localStorage.getItem('token');
+    const user = getCurrentUser();
+
+    if (!token || !user?.id || !isUserEnrolled || typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
+        return;
+    }
+
+    enableChatInput();
+
+    const socket = new SockJS(`${GATEWAY_URL}/chat-service/ws`);
+    stompClient = Stomp.over(socket);
+    stompClient.debug = () => {};
+
+    stompClient.connect(
+        { Authorization: `Bearer ${token}` },
+        () => {
+            stompClient.subscribe(`/topic/course/${courseIdValue}`, (payload) => {
+                const message = JSON.parse(payload.body);
+                const messageArea = document.getElementById('messageArea');
+                if (messageArea && messageArea.querySelector('.student-list-empty')) {
+                    messageArea.innerHTML = '';
+                }
+                appendMessage(message, user.id);
+            });
+
+            stompClient.send(`/app/chat.join/${courseIdValue}`, { Authorization: `Bearer ${token}` }, JSON.stringify({ type: 'JOIN' }));
+        },
+        (error) => {
+            console.error('Chat connection error:', error);
+            setChatLockState('Unable to connect to realtime chat.');
+        }
+    );
+}
 
 function updateEnrollButtonState(enrolled) {
     const enrollButton = document.getElementById('enrollButton');
@@ -28,19 +189,61 @@ function updateEnrollButtonState(enrolled) {
     }
 }
 
-async function checkEnrollmentStatus(courseId) {
+function renderStudents(students) {
+    const studentsList = document.getElementById('studentsList');
+    if (!studentsList) {
+        return;
+    }
+
+    if (!students.length) {
+        studentsList.innerHTML = '<li class="student-list-empty">No students enrolled yet.</li>';
+        return;
+    }
+
+    studentsList.innerHTML = students.map((student) => {
+        const displayName = student.fullName || student.email || `User ${student.id}`;
+        const initials = (displayName.trim().charAt(0) || 'U').toUpperCase();
+        return `
+            <li class="student-item">
+                <div class="student-avatar">${initials}</div>
+                <div class="student-info">
+                    <strong>${displayName}</strong>
+                    <span>${student.email || 'No email available'}</span>
+                </div>
+            </li>
+        `;
+    }).join('');
+}
+
+async function loadEnrolledStudents(courseIdValue) {
+    try {
+        const response = await fetch(`${GATEWAY_URL}/courses-service/api/courses/${courseIdValue}/students`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch students');
+        }
+
+        const students = await response.json();
+        renderStudents(students);
+    } catch (error) {
+        console.error('Error loading enrolled students:', error);
+        renderStudents([]);
+    }
+}
+
+async function checkEnrollmentStatus(courseIdValue) {
     const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const user = getCurrentUser();
 
     if (!token || !user?.id) {
         isUserEnrolled = false;
         updateEnrollButtonState(false);
+        setChatLockState('Login and enroll in this course to join chat.');
         return;
     }
 
     try {
-        const response = await fetch(`${GATEWAY_URL}/courses-service/api/courses/${courseId}/enrolled/${user.id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetch(`${GATEWAY_URL}/courses-service/api/courses/${courseIdValue}/enrolled/${user.id}`, {
+            headers: { Authorization: `Bearer ${token}` }
         });
 
         if (!response.ok) {
@@ -49,10 +252,15 @@ async function checkEnrollmentStatus(courseId) {
 
         isUserEnrolled = await response.json();
         updateEnrollButtonState(isUserEnrolled);
+
+        if (!isUserEnrolled) {
+            setChatLockState('Enroll in this course to access the chat room.');
+        }
     } catch (error) {
         console.error('Error checking enrollment status:', error);
         isUserEnrolled = false;
         updateEnrollButtonState(false);
+        setChatLockState('Chat is unavailable until enrollment is confirmed.');
     }
 }
 
@@ -70,7 +278,16 @@ async function loadCourse() {
 
         currentCourse = await response.json();
         displayCourse(currentCourse);
-                await checkEnrollmentStatus(currentCourse.id);
+
+        await Promise.all([
+            checkEnrollmentStatus(currentCourse.id),
+            loadEnrolledStudents(currentCourse.id)
+        ]);
+
+        if (isUserEnrolled) {
+            await loadChatHistory(currentCourse.id);
+            connectCourseChat(currentCourse.id);
+        }
     } catch (error) {
         console.error('Error loading course:', error);
         showError();
@@ -127,16 +344,12 @@ function switchTab(tabName) {
 }
 
 async function enrollCourse() {
-    if (!currentCourse) {
-        alert('Course not loaded yet');
-        return;
-    }
- if (isUserEnrolled) {
+    if (!currentCourse || isUserEnrolled) {
         return;
     }
 
     const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const user = getCurrentUser();
 
     if (!token || !user?.id) {
         alert('Please login first');
@@ -147,13 +360,14 @@ async function enrollCourse() {
     try {
         const response = await fetch(`${GATEWAY_URL}/courses-service/api/courses/${currentCourse.id}/enroll/${user.id}`, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
 
         if (response.ok) {
             alert('Successfully enrolled!');
             isUserEnrolled = true;
             updateEnrollButtonState(true);
+            await loadCourse();
         } else {
             const message = await response.text();
             alert(message || 'Failed to enroll');
@@ -166,25 +380,20 @@ async function enrollCourse() {
 
 function sendMessage() {
     const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-    if (message) {
-        const messageArea = document.getElementById('messageArea');
-        const msg = document.createElement('div');
-        msg.className = 'message sent';
-        msg.innerHTML = `
-            <div class="message-avatar">U</div>
-            <div class="message-body">
-                <div class="message-header">
-                    <strong>You</strong>
-                    <span class="message-time">Now</span>
-                </div>
-                <p class="message-text">${message}</p>
-            </div>
-        `;
-        messageArea.appendChild(msg);
-        messageArea.scrollTop = messageArea.scrollHeight;
-        input.value = '';
+    const message = input?.value?.trim();
+
+    if (!message || !stompClient || !stompClient.connected || !currentCourse?.id) {
+        return;
     }
+
+    const token = localStorage.getItem('token');
+    stompClient.send(
+        `/app/chat.send/${currentCourse.id}`,
+        { Authorization: `Bearer ${token}` },
+        JSON.stringify({ content: message, type: 'CHAT' })
+    );
+
+    input.value = '';
 }
 
 function initializePage() {
@@ -196,8 +405,16 @@ function initializePage() {
             }
         });
     }
+
+    setChatLockState('Loading chat...');
     loadCourse();
 }
+
+window.addEventListener('beforeunload', () => {
+    if (stompClient && stompClient.connected) {
+        stompClient.disconnect();
+    }
+});
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializePage);
