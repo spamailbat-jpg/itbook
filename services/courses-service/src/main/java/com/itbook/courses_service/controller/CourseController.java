@@ -7,6 +7,8 @@ import com.itbook.courses_service.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,22 +35,49 @@ public class CourseController {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @GetMapping
-    public ResponseEntity<List<Course>> getAllCourses() {
+    public ResponseEntity<List<Course>> getAllCourses(@RequestParam(defaultValue = "false") boolean withStudents) {
         List<Course> courses = courseService.getAllCourses();
+        if (withStudents) {
+            courses.forEach(this::enrichCourseWithStudents);
+        }
         return ResponseEntity.ok(courses);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Course> getCourseById(@PathVariable Long id) {
+    public ResponseEntity<Course> getCourseById(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean withStudents
+    ) {
         Optional<Course> course = courseService.getCourseById(id);
-        return course.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        if (course.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (withStudents) {
+            enrichCourseWithStudents(course.get());
+        }
+
+        return ResponseEntity.ok(course.get());
     }
 
     @PostMapping("/{courseId}/enroll/{userId}")
-    public ResponseEntity<String> enrollUser(@PathVariable Long courseId, @PathVariable Long userId) {
+    public ResponseEntity<String> enrollUser(
+            @PathVariable Long courseId,
+            @PathVariable Long userId,
+            @RequestHeader(value = "Authorization", required = false) String authHeader
+    ) {
         if (courseService.getCourseById(courseId).isEmpty()) {
             return ResponseEntity.notFound().build();
+        }
+
+        if (authHeader != null && !authHeader.isBlank()) {
+            Long tokenUserId = getUserIdFromToken(authHeader);
+            if (tokenUserId == null) {
+                return ResponseEntity.status(401).body("Invalid token");
+            }
+            if (!tokenUserId.equals(userId)) {
+                return ResponseEntity.status(403).body("You can only enroll yourself");
+            }
         }
 
         if (!userExists(userId)) {
@@ -74,11 +104,19 @@ public class CourseController {
     }
 
     @GetMapping("/user/{userId}/courses")
-    public ResponseEntity<List<Course>> getUserCourses(@PathVariable Long userId) {
+    public ResponseEntity<List<Course>> getUserCourses(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "false") boolean withStudents
+    ) {
         if (!userExists(userId)) {
             return ResponseEntity.ok(Collections.emptyList());
         }
-        return ResponseEntity.ok(courseService.getCoursesByUserId(userId));
+
+        List<Course> courses = courseService.getCoursesByUserId(userId);
+        if (withStudents) {
+            courses.forEach(this::enrichCourseWithStudents);
+        }
+        return ResponseEntity.ok(courses);
     }
 
     @GetMapping("/{courseId}/users")
@@ -95,6 +133,16 @@ public class CourseController {
 
         List<UserBasicDto> users = fetchUsersByIds(userIds);
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/{courseId}/students")
+    public ResponseEntity<List<UserBasicDto>> getCourseStudents(@PathVariable Long courseId) {
+        return getCourseUsers(courseId);
+    }
+
+    private void enrichCourseWithStudents(Course course) {
+        List<UserBasicDto> users = getCourseUsers(course.getId()).getBody();
+        course.setStudentsList(users == null ? Collections.emptyList() : users);
     }
 
     private boolean userExists(Long userId) {
@@ -123,6 +171,32 @@ public class CourseController {
             return response.getBody() == null ? Collections.emptyList() : response.getBody();
         } catch (RestClientException e) {
             return Collections.emptyList();
+        }
+    }
+
+    private Long getUserIdFromToken(String authHeader) {
+        String verifyUrl = UriComponentsBuilder.fromHttpUrl(userServiceBaseUrl)
+                .path("/api/auth/verify")
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", authHeader);
+
+        try {
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    verifyUrl,
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    new ParameterizedTypeReference<>() {}
+            );
+
+            Object userId = response.getBody() == null ? null : response.getBody().get("userId");
+            if (userId instanceof Number number) {
+                return number.longValue();
+            }
+            return null;
+        } catch (RestClientException e) {
+            return null;
         }
     }
 }

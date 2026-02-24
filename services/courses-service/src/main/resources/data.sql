@@ -72,15 +72,3 @@ VALUES
 ('Web Development', 'Build modern web applications', 'WebLogo.png',
  'https://drive.google.com/file/d/1YRiuWserAEpwGuZOy4XlwzSMuQJFH2vm/preview',
  'https://drive.google.com/embeddedfolderview?id=1Sho2bm6G4r7GjmZdNuXXkcXGYTx32g2A#grid');
-
--- Seed realistic enrollments for Java and Database courses.
--- user_id is intentionally not a foreign key so these rows can exist
--- before users are created in user-service.
-INSERT IGNORE INTO enrollments (user_id, course_id)
-SELECT 1, id FROM courses WHERE title = 'Java Programming';
-
-INSERT IGNORE INTO enrollments (user_id, course_id)
-SELECT 1, id FROM courses WHERE title = 'Database Lab';
-
-INSERT IGNORE INTO enrollments (user_id, course_id)
-SELECT 2, id FROM courses WHERE title = 'Java Programming';

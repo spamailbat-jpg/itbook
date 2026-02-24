@@ -1,6 +1,7 @@
 package com.itbook.courses_service.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.itbook.courses_service.dto.UserBasicDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,10 +21,16 @@ public class Course {
     private String title;
     private String description;
     private String image;
+
     @Transient
     private Integer students;
+
+    @Transient
+    private List<UserBasicDto> studentsList;
+
     private String bookUrl;  // Google Drive PDF link
     private String slidesUrl; // Google Drive slides link
+
     @JsonIgnore
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Enrollment> enrollments;

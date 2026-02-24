@@ -2,6 +2,7 @@ package com.itbook.user_service.controller;
 
 import com.itbook.user_service.dto.CourseDto;
 import com.itbook.user_service.dto.UserBasicDto;
+import com.itbook.user_service.dto.UserWithCoursesDto;
 import com.itbook.user_service.entity.User;
 import com.itbook.user_service.service.UserService;
 import com.itbook.user_service.util.JwtUtil;
@@ -248,7 +249,7 @@ public class AuthController {
     }
 
     @GetMapping("/{userId}/courses")
-    public ResponseEntity<?> getUserWithCourses(@PathVariable Long userId) {
+    public ResponseEntity<UserWithCoursesDto> getUserWithCourses(@PathVariable Long userId) {
         User user = userService.getUserById(userId);
         if (user == null) {
             return ResponseEntity.notFound().build();
@@ -264,9 +265,12 @@ public class AuthController {
 
         List<CourseDto> courses = response.getBody() == null ? Collections.emptyList() : response.getBody();
 
-        return ResponseEntity.ok(Map.of(
-                "user", new UserBasicDto(user.getId(), user.getEmail(), user.getFullName(), user.getAvatarUrl()),
-                "courses", courses
+        return ResponseEntity.ok(new UserWithCoursesDto(
+                user.getId(),
+                user.getEmail(),
+                user.getFullName(),
+                user.getAvatarUrl(),
+                courses
         ));
     }
 
