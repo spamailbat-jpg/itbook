@@ -35,19 +35,28 @@ public class CourseController {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @GetMapping
-    public ResponseEntity<List<Course>> getAllCourses() {
+    public ResponseEntity<List<Course>> getAllCourses(@RequestParam(defaultValue = "false") boolean withStudents) {
         List<Course> courses = courseService.getAllCourses();
+        if (withStudents) {
+            courses.forEach(this::enrichCourseWithStudents);
+        }
         return ResponseEntity.ok(courses);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Course> getCourseById(@PathVariable Long id) {
+    public ResponseEntity<Course> getCourseById(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean withStudents
+    ) {
         Optional<Course> course = courseService.getCourseById(id);
         if (course.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        course.get().setStudentsList(getCourseUsers(course.get().getId()).getBody());
+        if (withStudents) {
+            enrichCourseWithStudents(course.get());
+        }
+
         return ResponseEntity.ok(course.get());
     }
 
@@ -95,13 +104,18 @@ public class CourseController {
     }
 
     @GetMapping("/user/{userId}/courses")
-    public ResponseEntity<List<Course>> getUserCourses(@PathVariable Long userId) {
+    public ResponseEntity<List<Course>> getUserCourses(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "false") boolean withStudents
+    ) {
         if (!userExists(userId)) {
             return ResponseEntity.ok(Collections.emptyList());
         }
 
         List<Course> courses = courseService.getCoursesByUserId(userId);
-        courses.forEach(course -> course.setStudentsList(getCourseUsers(course.getId()).getBody()));
+        if (withStudents) {
+            courses.forEach(this::enrichCourseWithStudents);
+        }
         return ResponseEntity.ok(courses);
     }
 
@@ -124,6 +138,11 @@ public class CourseController {
     @GetMapping("/{courseId}/students")
     public ResponseEntity<List<UserBasicDto>> getCourseStudents(@PathVariable Long courseId) {
         return getCourseUsers(courseId);
+    }
+
+    private void enrichCourseWithStudents(Course course) {
+        List<UserBasicDto> users = getCourseUsers(course.getId()).getBody();
+        course.setStudentsList(users == null ? Collections.emptyList() : users);
     }
 
     private boolean userExists(Long userId) {
