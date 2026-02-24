@@ -217,7 +217,7 @@
 
                         <div class="chat-input-area">
                             <input type="text" id="chatInput" placeholder="Type your message..." class="chat-input">
-                            <button onclick="sendMessage()" class="send-btn">
+                            <button id="sendButton" onclick="sendMessage()" class="send-btn">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
@@ -291,6 +291,8 @@
     </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 <script src="/js/course-detail.js"></script>
 <script src="/js/session.js"></script>
 </body>

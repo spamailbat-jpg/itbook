@@ -21,6 +21,9 @@ public class ChatMessage {
     @Column
     private Long userId;
 
+    @Column(nullable = false)
+    private Long courseId;
+
     @Enumerated(EnumType.STRING)
     private Type type;
 
