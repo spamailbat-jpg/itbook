@@ -114,6 +114,12 @@
                         <label for="newPassword">New Password</label>
                         <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password">
                     </div>
+
+                    <div class="password-requirements" id="passwordRequirements">
+                        <p id="reqLength"><i class="fas fa-circle-xmark"></i> At least 8 characters</p>
+                        <p id="reqCase"><i class="fas fa-circle-xmark"></i> Mix of uppercase and lowercase</p>
+                        <p id="reqSymbols"><i class="fas fa-circle-xmark"></i> Include numbers and symbols</p>
+                    </div>
                     
                     <div class="form-group">
                         <label for="confirmPassword">Confirm Password</label>
@@ -205,9 +211,56 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
     }
 });
 
-    // Password form handler
+    function updateRequirementState(elementId, isValid) {
+    const requirement = document.getElementById(elementId);
+    if (!requirement) return;
+
+    const icon = requirement.querySelector('i');
+    requirement.classList.toggle('valid', isValid);
+    requirement.classList.toggle('invalid', !isValid);
+
+    if (icon) {
+        icon.className = isValid ? 'fas fa-circle-check' : 'fas fa-circle-xmark';
+    }
+}
+
+function validatePasswordRules(password) {
+    const hasLength = password.length >= 8;
+    const hasMixedCase = /[a-z]/.test(password) && /[A-Z]/.test(password);
+    const hasNumberAndSymbol = /\d/.test(password) && /[^A-Za-z0-9]/.test(password);
+
+    updateRequirementState('reqLength', hasLength);
+    updateRequirementState('reqCase', hasMixedCase);
+    updateRequirementState('reqSymbols', hasNumberAndSymbol);
+
+    return hasLength && hasMixedCase && hasNumberAndSymbol;
+}
+
+const newPasswordInput = document.getElementById('newPassword');
+if (newPasswordInput) {
+    validatePasswordRules(newPasswordInput.value || '');
+    newPasswordInput.addEventListener('input', (e) => {
+        validatePasswordRules(e.target.value || '');
+    });
+}
+
+// Password form handler
 document.querySelector('#password form').addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (!validatePasswordRules(newPassword)) {
+        alert('Password does not meet the required rules.');
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        alert('New password and confirmation do not match.');
+        return;
+    }
 
     const token = localStorage.getItem('token');
     const response = await fetch(`${GATEWAY_URL}/user-service/api/auth/change-password`, {
@@ -217,9 +270,9 @@ document.querySelector('#password form').addEventListener('submit', async (e) =>
             'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-            currentPassword: document.getElementById('currentPassword').value,
-            newPassword: document.getElementById('newPassword').value,
-            confirmPassword: document.getElementById('confirmPassword').value
+            currentPassword,
+            newPassword,
+            confirmPassword
         })
     });
 
@@ -227,6 +280,7 @@ document.querySelector('#password form').addEventListener('submit', async (e) =>
     if (response.ok) {
         alert('Password updated successfully');
         document.querySelector('#password form').reset();
+        validatePasswordRules('');
     } else {
         alert('Error: ' + (data.error || 'Failed to update password'));
     }
