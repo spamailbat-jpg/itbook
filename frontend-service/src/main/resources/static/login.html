@@ -66,36 +66,56 @@
       });
     }
 
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const formData = new FormData(form);
       const gatewayUrl = localStorage.getItem('gatewayUrl') || `${window.location.protocol}//localhost:8765`;
+      const payload = JSON.stringify({
+        email: formData.get('email'),
+        password: formData.get('password')
+      });
 
-      try {
-        const response = await fetch(`${gatewayUrl}/user-service/api/auth/login`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            email: formData.get('email'),
-            password: formData.get('password')
-          })
-        });
+      const maxRetries = 3;
 
-        const data = await response.json();
-        const loginSucceeded = Boolean(data.success) || (response.ok && Boolean(data.token));
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetch(`${gatewayUrl}/user-service/api/auth/login`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: payload
+          });
 
-        if (loginSucceeded) {
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user));
-          window.location.href = '/account.html';
+          const data = await response.json();
+          const loginSucceeded = Boolean(data.success) || (response.ok && Boolean(data.token));
+
+          if (loginSucceeded) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            window.location.href = '/account.html';
+            return;
+          }
+
+          const serviceNotReady = response.status === 503 || /service not found/i.test(data.message || '');
+          if (serviceNotReady && attempt < maxRetries) {
+            await sleep(1200);
+            continue;
+          }
+
+          alert(data.message || 'Login failed');
+          return;
+        } catch (error) {
+          if (attempt < maxRetries) {
+            await sleep(1200);
+            continue;
+          }
+
+          console.error('Login request failed:', error);
+          alert('Login error: ' + (error.message || 'Unexpected error'));
           return;
         }
-
-        alert(data.message || 'Login failed');
-      } catch (error) {
-        console.error('Login request failed:', error);
-        alert('Login error: ' + (error.message || 'Unexpected error'));
       }
     });
   })();
