@@ -375,8 +375,20 @@ body {
   margin-bottom: 0;
 }
 
-.password-requirements i {
-  color: #4caf50;
+.password-requirements p.invalid {
+  color: #8a8a8a;
+}
+
+.password-requirements p.valid {
+  color: #1f7a36;
+}
+
+.password-requirements p.invalid i {
+  color: #d9534f;
+}
+
+.password-requirements p.valid i {
+  color: #2e9f4f;
 }
 
 .divider {
