@@ -51,6 +51,11 @@
               <img src="/img/icons/pass.svg">
               <i class="fas fa-eye toggle-password" id="toggleConfirmPassword"></i>
             </div>
+            <div class="password-requirements">
+              <p><i class="fas fa-check"></i> At least 8 characters</p>
+              <p><i class="fas fa-check"></i> Mix of uppercase and lowercase</p>
+              <p><i class="fas fa-check"></i> Include numbers and symbols</p>
+            </div>
             <br>
           </div>
           <button type="submit" style="margin-bottom:10px">Submit</button>
@@ -59,9 +64,29 @@
       </div>
     </div>
     <script>
+      function isStrongPassword(password) {
+    return password.length >= 8
+      && /[a-z]/.test(password)
+      && /[A-Z]/.test(password)
+      && /\d/.test(password)
+      && /[^A-Za-z0-9]/.test(password);
+}
+
       document.querySelector('.formSignup').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
+    const password = formData.get('password') || '';
+    const confirmPassword = formData.get('confirmPassword') || '';
+
+    if (!isStrongPassword(password)) {
+      alert('Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords don't match");
+      return;
+    }
 
     try {
         const gatewayUrl = localStorage.getItem('gatewayUrl') || `${window.location.protocol}//localhost:8765`;

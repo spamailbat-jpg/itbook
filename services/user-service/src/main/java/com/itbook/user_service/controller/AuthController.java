@@ -86,6 +86,13 @@ public class AuthController {
             return ResponseEntity.status(400).body(Map.of("success", false, "message", "Passwords don't match"));
         }
 
+        if (!isStrongPassword(password)) {
+            return ResponseEntity.status(400).body(Map.of(
+                    "success", false,
+                    "message", "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol"
+            ));
+        }
+
         User newUser = new User();
         newUser.setEmail(email);
         newUser.setFullName(fullName);
@@ -275,6 +282,20 @@ public class AuthController {
                 user.getAvatarUrl(),
                 courses
         ));
+    }
+
+    private boolean isStrongPassword(String password) {
+        if (password == null) {
+            return false;
+        }
+
+        boolean hasLength = password.length() >= 8;
+        boolean hasLower = password.chars().anyMatch(Character::isLowerCase);
+        boolean hasUpper = password.chars().anyMatch(Character::isUpperCase);
+        boolean hasDigit = password.chars().anyMatch(Character::isDigit);
+        boolean hasSymbol = password.chars().anyMatch(ch -> !Character.isLetterOrDigit(ch));
+
+        return hasLength && hasLower && hasUpper && hasDigit && hasSymbol;
     }
 
     private List<Long> parseIds(String idsParam) {
