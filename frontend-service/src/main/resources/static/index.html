@@ -1,19 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>ITBook</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ITBook — Learn. Build. Ship.</title>
+  <link rel="icon" href="/img/logo.png" type="image/png"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --bg:#070b18; --panel:#111a33; --text:#eef3ff; --muted:#aab8da; --accent:#7aa2ff; }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,-apple-system,sans-serif}
+    body{min-height:100vh;color:var(--text);background:radial-gradient(1100px 550px at 15% -5%,rgba(122,162,255,.25),transparent 60%),radial-gradient(900px 400px at 100% 20%,rgba(138,123,255,.18),transparent 55%),var(--bg)}
+    .shell{max-width:1180px;margin:0 auto;padding:28px 24px 56px}
+    .nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:56px}
+    .brand{display:flex;gap:12px;align-items:center;font-weight:700;font-size:1.2rem}
+    .brand img{width:40px;height:40px;border-radius:10px}
+    .links{display:flex;gap:12px}
+    .btn{border:1px solid rgba(122,162,255,.3);background:rgba(255,255,255,.04);color:var(--text);padding:10px 18px;border-radius:12px;cursor:pointer;font-weight:600}
+    .btn.primary{background:linear-gradient(135deg,#5f8dff,#8a7bff);border:none}
+    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:stretch}
+    .panel{background:var(--panel);border:1px solid rgba(122,162,255,.2);border-radius:22px;padding:36px;box-shadow:0 30px 80px rgba(0,0,0,.28)}
+    h1{font-size:clamp(2rem,4vw,3.2rem);line-height:1.06;margin-bottom:16px}
+    p{color:var(--muted);line-height:1.65}
+    .chips{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}
+    .chip{font-size:.85rem;border:1px solid rgba(122,162,255,.4);color:#cfe0ff;padding:7px 12px;border-radius:999px;background:rgba(122,162,255,.1)}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+    .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .card{padding:18px;background:#0d1530;border:1px solid rgba(122,162,255,.2);border-radius:14px}
+    .card b{font-size:1.4rem}
+    .foot{margin-top:40px;text-align:center;color:var(--muted);font-size:.9rem}
+    @media (max-width:880px){.hero{grid-template-columns:1fr}.shell{padding:20px}.panel{padding:26px}}
+  </style>
 </head>
 <body>
-<script>
-    const token = localStorage.getItem('token');
-    if (token) {
-        // Logged in - go to home/dashboard
-        window.location.href = '/courses.html';
-    } else {
-        // Not logged in - go to login
-        window.location.href = '/login.html';
-    }
-</script>
+  <div class="shell">
+    <header class="nav">
+      <div class="brand"><img src="/img/logo.png" alt="ITBook"> ITBook</div>
+      <div class="links">
+        <button class="btn" id="goLogin">Login</button>
+        <button class="btn primary" id="goCourses">Open App</button>
+      </div>
+    </header>
+
+    <main class="hero">
+      <section class="panel">
+        <h1>One place for your IT courses, labs, and community chat.</h1>
+        <p>ITBook gives students a focused workspace for discovering courses, tracking enrollments, and collaborating in live class chat.</p>
+        <div class="chips">
+          <span class="chip">Course Discovery</span>
+          <span class="chip">Personal Dashboard</span>
+          <span class="chip">Real-time Chat</span>
+          <span class="chip">Progress Tracking</span>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="heroStart">Get Started</button>
+          <button class="btn" id="heroSignup">Create Account</button>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <div class="stats">
+          <div class="card"><b>20+</b><p>Specialized IT tracks</p></div>
+          <div class="card"><b>Live</b><p>Team communication in class rooms</p></div>
+          <div class="card"><b>Fast</b><p>Simple sign-in and account tools</p></div>
+          <div class="card"><b>Secure</b><p>Token-based authenticated access</p></div>
+        </div>
+      </aside>
+    </main>
+
+    <p class="foot">© ITBook platform</p>
+  </div>
+  <script src="/js/index.js"></script>
 </body>
 </html>

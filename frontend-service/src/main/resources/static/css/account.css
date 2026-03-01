@@ -1,11 +1,12 @@
 :root {
-  --primary: #050815;
-  --dark: #181d38;
-  --light: #f0fbfc;
-  --accent: #667eea;
-  --text: #333;
-  --border: #e0e0e0;
+  --primary: #0d1b3d;
+  --dark: #08112a;
+  --light: #050c1f;
+  --accent: #5c86ff;
+  --text: #e6efff;
+  --border: #1c2f5d;
   --danger: #e74c3c;
+  --panel: #0b1735;
 }
 
 * {
@@ -22,8 +23,8 @@ body {
 
 /* Navbar */
 .navbar {
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: rgba(5, 12, 31, 0.95);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.35);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -59,7 +60,7 @@ body {
 
 .nav-link {
   text-decoration: none;
-  color: var(--text);
+  color: #bdcced;
   font-weight: 500;
   transition: color 0.3s;
 }
@@ -91,7 +92,7 @@ body {
   position: absolute;
   top: 100%;
   right: 0;
-  background: white;
+  background: var(--panel);
   min-width: 200px;
   border-radius: 8px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
@@ -119,8 +120,8 @@ body {
 
 .user-dropdown a:hover,
 .user-dropdown a.active {
-  background: var(--light);
-  color: var(--primary);
+  background: rgba(92, 134, 255, 0.12);
+  color: var(--text);
 }
 
 .user-dropdown .logout:hover {
@@ -166,7 +167,7 @@ body {
 }
 
 .profile-card {
-  background: white;
+  background: var(--panel);
   padding: 30px;
   border-radius: 12px;
   text-align: center;
@@ -193,7 +194,7 @@ body {
 }
 
 .profile-card p {
-  color: #666;
+  color: #9eb3df;
   font-size: 14px;
 }
 
@@ -235,7 +236,7 @@ body {
 }
 
 .settings-btn {
-  background: white;
+  background: var(--panel);
   border: 2px solid var(--border);
   padding: 12px 16px;
   border-radius: 8px;
@@ -269,7 +270,7 @@ body {
 
 .settings-section {
   display: none;
-  background: white;
+  background: var(--panel);
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -286,7 +287,7 @@ body {
 }
 
 .section-header p {
-  color: #666;
+  color: #9eb3df;
   margin-bottom: 30px;
 }
 
@@ -311,6 +312,8 @@ body {
 .form-group input,
 .form-group textarea,
 .form-group select {
+  background: #07112a;
+  color: var(--text);
   padding: 12px;
   border: 2px solid var(--border);
   border-radius: 8px;
@@ -328,7 +331,7 @@ body {
 }
 
 .form-group input[readonly] {
-  background: #f5f5f5;
+  background: #111f44;
   cursor: not-allowed;
 }
 
@@ -351,12 +354,12 @@ body {
 .form-group.checkbox p {
   margin-left: 32px;
   font-size: 12px;
-  color: #999;
+  color: #93a8d1;
   margin-top: -5px;
 }
 
 .password-requirements {
-  background: #f8f9fa;
+  background: #07112a;
   padding: 15px;
   border-radius: 8px;
   margin: 10px 0;
@@ -364,7 +367,7 @@ body {
 
 .password-requirements p {
   font-size: 13px;
-  color: #666;
+  color: #afc2e9;
   margin-bottom: 8px;
   display: flex;
   align-items: center;
@@ -437,7 +440,7 @@ body {
 
 /* Danger Zone */
 .danger-zone {
-  background: #fff5f5;
+  background: rgba(231, 76, 60, 0.08);
   border: 2px solid var(--danger);
   padding: 30px;
   border-radius: 12px;
@@ -449,7 +452,7 @@ body {
 }
 
 .danger-zone p {
-  color: #999;
+  color: #c9d6f5;
   margin-bottom: 20px;
 }
 
@@ -475,4 +478,39 @@ body {
   .nav-links {
     display: none;
   }
+}
+
+
+/* === Custom redesign v2 account === */
+:root {
+  --primary: #121b36;
+  --dark: #0a1022;
+  --light: #070b18;
+  --accent: #7aa2ff;
+  --text: #eef3ff;
+  --border: #25345d;
+  --panel: #111a33;
+}
+
+body {
+  background: radial-gradient(900px 400px at 0% 0%, rgba(122, 162, 255, 0.15), transparent 65%), var(--light);
+}
+
+.navbar,
+.profile-card,
+.settings-btn,
+.settings-section,
+.user-dropdown {
+  border: 1px solid rgba(122, 162, 255, 0.18);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  background: #0c1430;
+  border-color: #2a3968;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #5f8dff 0%, #8a7bff 100%);
 }
