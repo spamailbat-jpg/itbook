@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="icon" href="/img/logowhite.png" type="image/png"/>
-  <link rel="stylesheet" type="text/css" href="/css/loginStyle.css">
+  <link rel="stylesheet" type="text/css" href="/css/login.css">
   <title>Sign Up</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
@@ -51,68 +51,96 @@
               <img src="/img/icons/pass.svg">
               <i class="fas fa-eye toggle-password" id="toggleConfirmPassword"></i>
             </div>
+
             <div class="password-requirements">
-              <p><i class="fas fa-check"></i> At least 8 characters</p>
-              <p><i class="fas fa-check"></i> Mix of uppercase and lowercase</p>
-              <p><i class="fas fa-check"></i> Include numbers and symbols</p>
+              <p id="req-length"><i class="fas fa-times-circle"></i> At least 8 characters</p>
+              <p id="req-case"><i class="fas fa-times-circle"></i> Mix of uppercase and lowercase</p>
+              <p id="req-symbols"><i class="fas fa-times-circle"></i> Include numbers and symbols</p>
             </div>
             <br>
           </div>
           <button type="submit" style="margin-bottom:10px">Submit</button>
-          <a href="index.html" class="ff">Return To Home</a>
         </form>
       </div>
     </div>
     <script>
-      function isStrongPassword(password) {
-    return password.length >= 8
-      && /[a-z]/.test(password)
-      && /[A-Z]/.test(password)
-      && /\d/.test(password)
-      && /[^A-Za-z0-9]/.test(password);
-}
+      // Eye toggles
+      document.getElementById('togglePassword').addEventListener('click', function() {
+          const input = document.getElementById('password');
+          input.type = input.type === 'password' ? 'text' : 'password';
+          this.classList.toggle('fa-eye-slash');
+      });
 
+      document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+          const input = document.getElementById('confirmPassword');
+          input.type = input.type === 'password' ? 'text' : 'password';
+          this.classList.toggle('fa-eye-slash');
+      });
+
+      // Live requirement validation
+      function validatePassword(password) {
+          const rules = {
+              'req-length':  password.length >= 8,
+              'req-case':    /[a-z]/.test(password) && /[A-Z]/.test(password),
+              'req-symbols': /\d/.test(password) && /[^A-Za-z0-9]/.test(password)
+          };
+
+          Object.entries(rules).forEach(([id, valid]) => {
+              const el   = document.getElementById(id);
+              const icon = el.querySelector('i');
+              icon.className = valid ? 'fas fa-check-circle' : 'fas fa-times-circle';
+              el.style.color  = valid ? '#25d366' : '#e74c3c';
+          });
+
+          return Object.values(rules).every(Boolean);
+      }
+
+      document.getElementById('password').addEventListener('input', (e) => {
+          validatePassword(e.target.value);
+      });
+
+      // Submit
       document.querySelector('.formSignup').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const password = formData.get('password') || '';
-    const confirmPassword = formData.get('confirmPassword') || '';
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const password        = formData.get('password') || '';
+          const confirmPassword = formData.get('confirmPassword') || '';
 
-    if (!isStrongPassword(password)) {
-      alert('Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.');
-      return;
-    }
+          if (!validatePassword(password)) {
+              alert('Password does not meet requirements.');
+              return;
+          }
 
-    if (password !== confirmPassword) {
-      alert("Passwords don't match");
-      return;
-    }
+          if (password !== confirmPassword) {
+              alert("Passwords don't match");
+              return;
+          }
 
-    try {
-        const gatewayUrl = localStorage.getItem('gatewayUrl') || `${window.location.protocol}//localhost:8765`;
-        const response = await fetch(`${gatewayUrl}/user-service/api/auth/signup`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                email: formData.get('email'),
-                fullName: formData.get('fullName'),
-                password: formData.get('password'),
-                confirmPassword: formData.get('confirmPassword')
-            })
-        });
+          try {
+              const gatewayUrl = localStorage.getItem('gatewayUrl') || `${window.location.protocol}//localhost:8765`;
+              const response = await fetch(`${gatewayUrl}/user-service/api/auth/signup`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      email:           formData.get('email'),
+                      fullName:        formData.get('fullName'),
+                      password:        password,
+                      confirmPassword: confirmPassword
+                  })
+              });
 
-        const data = await response.json();
-        if (response.ok) {
-            alert('Account created! Please login.');
-            window.location.href = '/login.html';
-        } else {
-            alert(data.message || 'Signup failed');
-        }
-    } catch (error) {
-        alert('Connection error. Please try again.');
-        console.error(error);
-    }
-});
+              const data = await response.json();
+              if (response.ok) {
+                  alert('Account created! Please login.');
+                  window.location.href = '/login.html';
+              } else {
+                  alert(data.message || 'Signup failed');
+              }
+          } catch (error) {
+              alert('Connection error. Please try again.');
+              console.error(error);
+          }
+      });
     </script>
 </body>
 </html>
