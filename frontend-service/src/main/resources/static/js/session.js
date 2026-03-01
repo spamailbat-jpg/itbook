@@ -95,13 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentPage = window.location.pathname.split('/').pop();
     const publicPages = ['login.html', 'signUp.html', 'resetPassword.html', 'index.html', ''];
 
-    document.querySelectorAll('a.logout, button.logout, [data-action="logout"]').forEach((el) => {
-        el.addEventListener('click', (e) => {
-            e.preventDefault();
-            logout();
-        });
-    });
-
     if (!publicPages.includes(currentPage)) {
         // Hide page initially
         document.body.style.display = 'none';

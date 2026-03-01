@@ -1,63 +1,146 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="/img/logowhite.png" type="image/png"/>
-  <link rel="stylesheet" href="/css/login.css">
-  <title>Create Account - ITBook</title>
+  <link rel="stylesheet" type="text/css" href="/css/login.css">
+  <title>Sign Up</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
-<body data-page="signup">
+<body>
 <div class="align">
   <nav class="navbar">
-    <div class="logo"><img src="/img/logowhite.png" alt="Logo"></div>
-    <div class="site-name"><b>[ ITBook ]</b><br><text>Create your account and start learning.</text></div>
+    <div class="logo">
+      <img src="/img/logowhite.png" alt="Logo">
+    </div>
+    <div class="site-name">
+      <b>[ ITBook ] <br></b>
+      <text>It's quick and easy.</text>
+    </div>
   </nav>
-
-  <div><img src="/img/collage.jpg" alt="IT collage" class="Background-image"></div>
-
-  <div class="card">
-    <div class="head">
-      <div></div>
-      <a href="/login.html">Login</a>
-      <a class="selected" href="/signUp.html">Sign up</a>
-      <div></div>
-    </div>
+  <div>
     <div>
-      <form class="formSignup" autocomplete="on">
-        <div class="inputs">
-          <div class="input">
-            <input name="email" type="email" placeholder="Email" required>
-            <img src="/img/icons/mail.svg" alt="mail">
-          </div>
-          <div class="input">
-            <input name="fullName" placeholder="Full Name" required>
-            <img src="/img/icons/user.svg" alt="user">
-          </div>
-          <div class="input">
-            <input type="password" name="password" id="password" placeholder="Password" required>
-            <img src="/img/icons/pass.svg" alt="password">
-            <i class="fas fa-eye toggle-password" id="togglePassword"></i>
-          </div>
-          <div class="input">
-            <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" required>
-            <img src="/img/icons/pass.svg" alt="password">
-            <i class="fas fa-eye toggle-password" id="toggleConfirmPassword"></i>
-          </div>
-
-          <div class="password-requirements">
-            <p id="req-length"><i class="fas fa-times-circle"></i> At least 8 characters</p>
-            <p id="req-case"><i class="fas fa-times-circle"></i> Mix of uppercase and lowercase</p>
-            <p id="req-symbols"><i class="fas fa-times-circle"></i> Include numbers and symbols</p>
-          </div>
-          <br>
-        </div>
-        <button type="submit" style="margin-bottom:10px">Create account</button>
-      </form>
+      <img src="/img/collage.jpg" alt="IT collage" class="Background-image">
     </div>
-  </div>
-</div>
-<script src="/js/auth.js"></script>
+    <div class="card">
+      <div class="head">
+        <div></div>
+        <a name="login" href="/login.html">Login</a>
+        <a name="signUp" class="selected" href="signUp.html">Sign up</a>
+        <div></div>
+      </div>
+      <div>
+        <form class="formSignup" autocomplete="on">
+          <div class="inputs">
+            <div class="input">
+              <input name="email" type="email" placeholder="Email" required>
+              <img src="/img/icons/mail.svg">
+            </div>
+            <div class="input">
+              <input name="fullName" placeholder="Full Name" required>
+              <img src="/img/icons/user.svg">
+            </div>
+
+            <div class="input">
+              <input type="password" name="password" id="password" placeholder="Password" required>
+              <img src="/img/icons/pass.svg">
+              <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+            </div>
+            <div class="input">
+              <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" required>
+              <img src="/img/icons/pass.svg">
+              <i class="fas fa-eye toggle-password" id="toggleConfirmPassword"></i>
+            </div>
+
+            <div class="password-requirements">
+              <p id="req-length"><i class="fas fa-times-circle"></i> At least 8 characters</p>
+              <p id="req-case"><i class="fas fa-times-circle"></i> Mix of uppercase and lowercase</p>
+              <p id="req-symbols"><i class="fas fa-times-circle"></i> Include numbers and symbols</p>
+            </div>
+            <br>
+          </div>
+          <button type="submit" style="margin-bottom:10px">Submit</button>
+        </form>
+      </div>
+    </div>
+    <script>
+      // Eye toggles
+      document.getElementById('togglePassword').addEventListener('click', function() {
+          const input = document.getElementById('password');
+          input.type = input.type === 'password' ? 'text' : 'password';
+          this.classList.toggle('fa-eye-slash');
+      });
+
+      document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+          const input = document.getElementById('confirmPassword');
+          input.type = input.type === 'password' ? 'text' : 'password';
+          this.classList.toggle('fa-eye-slash');
+      });
+
+      // Live requirement validation
+      function validatePassword(password) {
+          const rules = {
+              'req-length':  password.length >= 8,
+              'req-case':    /[a-z]/.test(password) && /[A-Z]/.test(password),
+              'req-symbols': /\d/.test(password) && /[^A-Za-z0-9]/.test(password)
+          };
+
+          Object.entries(rules).forEach(([id, valid]) => {
+              const el   = document.getElementById(id);
+              const icon = el.querySelector('i');
+              icon.className = valid ? 'fas fa-check-circle' : 'fas fa-times-circle';
+              el.style.color  = valid ? '#25d366' : '#e74c3c';
+          });
+
+          return Object.values(rules).every(Boolean);
+      }
+
+      document.getElementById('password').addEventListener('input', (e) => {
+          validatePassword(e.target.value);
+      });
+
+      // Submit
+      document.querySelector('.formSignup').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const password        = formData.get('password') || '';
+          const confirmPassword = formData.get('confirmPassword') || '';
+
+          if (!validatePassword(password)) {
+              alert('Password does not meet requirements.');
+              return;
+          }
+
+          if (password !== confirmPassword) {
+              alert("Passwords don't match");
+              return;
+          }
+
+          try {
+              const gatewayUrl = localStorage.getItem('gatewayUrl') || `${window.location.protocol}//localhost:8765`;
+              const response = await fetch(`${gatewayUrl}/user-service/api/auth/signup`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      email:           formData.get('email'),
+                      fullName:        formData.get('fullName'),
+                      password:        password,
+                      confirmPassword: confirmPassword
+                  })
+              });
+
+              const data = await response.json();
+              if (response.ok) {
+                  alert('Account created! Please login.');
+                  window.location.href = '/login.html';
+              } else {
+                  alert(data.message || 'Signup failed');
+              }
+          } catch (error) {
+              alert('Connection error. Please try again.');
+              console.error(error);
+          }
+      });
+    </script>
 </body>
 </html>

@@ -1,15 +1,15 @@
 :root {
-    --primary: #0d1b3d;
-    --primary-light: #4f7cff;
-    --primary-dark: #08112a;
-    --light: #0b1735;
-    --dark: #e6efff;
-    --bg: #050c1f;
-    --bg-dark: #040917;
-    --message-sent: #1a2b57;
-    --message-received: #0f2049;
-    --text-dark: #e6efff;
-    --text-light: #9eb3df;
+    --primary: #075e54;
+    --primary-light: #25d366;
+    --primary-dark: #054a3a;
+    --light: #ffffff;
+    --dark: #111b21;
+    --bg: #eae6df;
+    --bg-dark: #0a1419;
+    --message-sent: #dcf8c6;
+    --message-received: #ffffff;
+    --text-dark: #111b21;
+    --text-light: #667781;
     --transition: 0.3s ease;
 }
 
@@ -97,7 +97,7 @@ body {
 .username-input {
     width: 100%;
     padding: 14px 16px;
-    border: 1px solid #1c2f5d;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
     font-size: 15px;
     margin-bottom: 15px;
@@ -108,7 +108,7 @@ body {
 .username-input:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(92, 134, 255, 0.18);
+    box-shadow: 0 0 0 3px rgba(7, 94, 84, 0.1);
 }
 
 .btn-primary {
@@ -127,7 +127,7 @@ body {
 .btn-primary:hover {
     background: var(--primary-dark);
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(92, 134, 255, 0.35);
+    box-shadow: 0 10px 25px rgba(7, 94, 84, 0.4);
 }
 
 /* ===== CHAT PAGE ===== */
@@ -219,15 +219,15 @@ body {
             90deg,
             transparent,
             transparent 2px,
-            rgba(255, 255, 255, 0.02) 2px,
-            rgba(255, 255, 255, 0.02) 4px
+            rgba(0, 0, 0, 0.03) 2px,
+            rgba(0, 0, 0, 0.03) 4px
         ),
         repeating-linear-gradient(
             0deg,
             transparent,
             transparent 2px,
-            rgba(255, 255, 255, 0.02) 2px,
-            rgba(255, 255, 255, 0.02) 4px
+            rgba(0, 0, 0, 0.03) 2px,
+            rgba(0, 0, 0, 0.03) 4px
         );
 }
 
@@ -443,7 +443,7 @@ body {
     bottom: 100%;
     left: -10px;
     background: var(--light);
-    border: 1px solid #1c2f5d;
+    border: 1px solid #e0e0e0;
     border-radius: 20px;
     padding: 8px 12px;
     display: flex;
@@ -494,7 +494,7 @@ body {
 .message-input {
     flex: 1;
     padding: 12px 16px;
-    border: 1px solid #1c2f5d;
+    border: 1px solid #e0e0e0;
     border-radius: 20px;
     font-size: 16px;
     resize: none;
@@ -508,7 +508,7 @@ body {
 .message-input:focus {
     outline: none;
     border-color: var(--primary-light);
-    box-shadow: 0 0 0 2px rgba(92, 134, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(37, 211, 102, 0.1);
 }
 
 .message-input::placeholder {
@@ -566,32 +566,4 @@ body {
     .message-form {
         padding: 8px 12px 12px;
     }
-}
-
-/* === Custom redesign v2 chat === */
-:root {
-    --primary: #121b36;
-    --primary-light: #7aa2ff;
-    --primary-dark: #0a1022;
-    --light: #111a33;
-    --bg: #070b18;
-    --message-sent: #1a2750;
-    --message-received: #111f43;
-    --text-dark: #eef3ff;
-    --text-light: #aab8da;
-}
-
-.chat-wrapper,
-.modal-container {
-    border: 1px solid rgba(122, 162, 255, 0.22);
-}
-
-.message-input,
-.username-input {
-    background: #0c1430;
-    border-color: #2a3968;
-}
-
-.message-area {
-    background: radial-gradient(700px 320px at 10% -10%, rgba(122, 162, 255, 0.08), transparent 60%), var(--bg);
 }
