@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Courses - ITBook</title>
+    <link rel="icon" href="/img/logo.png" type="image/png"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/courses.css">
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="navbar-container">
+        <div class="navbar-brand">
+            <div class="logo-wrapper">
+                <img src="/img/logowhite.png" alt="ITBook" class="logo">
+            </div>
+            <div class="brand-text">
+                <h2>ITBook</h2>
+                <span class="brand-tagline">Learn. Build. Excel.</span>
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="account.html" class="nav-link">
+                <i class="fas fa-user-circle"></i>
+                <span>Account</span>
+            </a>
+            <a href="/courses.html" class="nav-link">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Courses</span>
+            </a>
+            <a href="about.html" class="nav-link">
+                <i class="fas fa-info-circle"></i>
+                <span>About</span>
+            </a>
+        </div>
+        <div class="user-menu">
+            <button class="user-btn">
+                <span id="navUserName">User</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="user-dropdown">
+                <a href="/my-courses.html" class="active"><i class="fas fa-book"></i> My Courses</a>
+                <a href="/account.html"><i class="fas fa-user-circle"></i> Account</a>
+                <div class="dropdown-divider"></div>
+                <a href="/login.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Header -->
+<div class="hero-section">
+    <div class="hero-bg">
+        <div class="grid-pattern"></div>
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+    </div>
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i class="fas fa-book-open"></i>
+            <span>My Learning</span>
+        </div>
+        <h1 class="hero-title">
+            My Courses
+            <span class="title-highlight">Keep Learning</span>
+        </h1>
+        <p class="hero-subtitle">All the courses you are enrolled in</p>
+    </div>
+</div>
+
+<!-- Courses Section -->
+<div class="courses-container">
+    <div class="section-header">
+        <div class="section-title-wrapper">
+            <h2 class="section-title">Enrolled Courses</h2>
+            <p class="section-subtitle" id="enrolledCount">Loading...</p>
+        </div>
+        <div class="search-filter-wrapper">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search my courses...">
+            </div>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p>Loading your courses...</p>
+    </div>
+
+    <div class="courses-grid" id="coursesGrid"></div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-bottom">
+            <p>&copy; 2026 ITBOOK. All Rights Reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="/js/session.js"></script>
+<script src="/js/my-courses.js"></script>
+</body>
+</html>
