@@ -1,10 +1,5 @@
 :root {
-  --primary: #020817;
-  --surface: rgba(9, 24, 56, 0.82);
-  --surface-strong: #0e1f45;
-  --text-main: #e8efff;
-  --text-muted: #99acd3;
-  --accent: #4f7cff;
+  --primary: #040610; /* #040610; or #181d38  or #011f4b */
 }
 
 * {
@@ -14,7 +9,7 @@
 }
 
 body {
-  color: var(--text-main);
+  color: white;
 }
 
 .Background-image {
@@ -53,18 +48,18 @@ body {
     font-size: 1.8em;
     margin-top: 60px;
     padding: 10px;
-    color: var(--text-main);
-    background: rgba(7, 17, 41, 0.88);
-    border: 1px solid rgba(79, 124, 255, 0.35);
+    color: black;
+    background: white;
+    opacity: 0.8;
 }
 
 .site-name-login {
     font-size: 1.6em;
     margin-top: 60px;
     padding: 10px;
-    color: var(--text-main);
-    background: rgba(7, 17, 41, 0.88);
-    border: 1px solid rgba(79, 124, 255, 0.35);
+    color: black;
+    background: white;
+    opacity: 0.8;
 }
 
 .card {
@@ -73,8 +68,8 @@ body {
   height: 100%;
   max-height: 480px;
   width: 396px;
-  background: var(--surface);
-  border: 1px solid rgba(79, 124, 255, 0.25);
+  background: #121212;
+  opacity: 0.6;
 }
 
 .cardSignup {
@@ -82,15 +77,15 @@ body {
   height: auto;
   min-height: 600px;
   width: 396px;
-  background: var(--surface);
-  border: 1px solid rgba(79, 124, 255, 0.25);
+  background: #121212;
+  opacity: 0.6;
 }
 
 .head {
   width: 100%;
   display: flex;
   height: 72px;
-  border-bottom: 1px solid rgba(79, 124, 255, 0.25);
+  border-bottom: 1px solid #373737;
   justify-content: space-between;
 }
 
@@ -100,7 +95,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
+  color: rgb(140, 140, 140);
   font-size: 20px;
   font-weight: bold;
 }
@@ -120,7 +115,7 @@ body {
   position: relative;
   color: white;
   font-weight: bold;
-  border-bottom: 5px solid var(--accent);
+  border-bottom: 5px solid #f0d274;
 }
 
 
@@ -178,11 +173,12 @@ text-decoration:none;
 .inputs input, .input select {
   width: 100%;
   font-size: 17px;
-  background: var(--surface-strong);
+  background: #1c1c1c;
   border-radius: 8px;
   padding: 14px 14px 14px 40px;
-  color: var(--text-main);
-  border: 1.5px solid rgba(79, 124, 255, 0.3);
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 0.99;
+  border: 1.5px solid #373737;
 
 }
 
@@ -194,11 +190,11 @@ text-decoration:none;
 
 button, input[type=submit] {
   display: block;
-  background: linear-gradient(135deg, #3f67dd 0%, #5b89ff 100%);
+  background: white;
   padding: 14px 52px;
   border-radius: 12px;
-  border-color: transparent;
-  color: white;
+  border-color: white;
+  color: black;
   font-weight: 700;
   font-size: 21px;
   cursor: pointer;
@@ -217,7 +213,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   position: absolute;
   right: 20px;
   cursor: pointer;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .password-requirements p {
@@ -236,32 +232,4 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 input[type="password"], input[type="text"] {
     padding-right: 45px !important;
-}
-
-
-/* === Custom redesign v2 login === */
-:root {
-  --primary: #070b18;
-  --surface: rgba(17, 26, 51, 0.88);
-  --surface-strong: #0f1730;
-  --text-main: #eef3ff;
-  --text-muted: #aab8da;
-  --accent: #7aa2ff;
-}
-
-.card,
-.cardSignup {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(8px);
-}
-
-button,
-input[type=submit] {
-  background: linear-gradient(135deg, #5f8dff 0%, #8a7bff 100%);
-}
-
-.inputs input,
-.input select {
-  background: #0f1730;
-  border-color: #2a3968;
 }
