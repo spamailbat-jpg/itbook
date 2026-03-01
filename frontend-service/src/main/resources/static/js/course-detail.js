@@ -191,9 +191,7 @@ function updateEnrollButtonState(enrolled) {
 
 function renderStudents(students) {
     const studentsList = document.getElementById('studentsList');
-    if (!studentsList) {
-        return;
-    }
+    if (!studentsList) return;
 
     if (!students.length) {
         studentsList.innerHTML = '<li class="student-list-empty">No students enrolled yet.</li>';
@@ -203,12 +201,14 @@ function renderStudents(students) {
     studentsList.innerHTML = students.map((student) => {
         const displayName = student.fullName || student.email || `User ${student.id}`;
         const initials = (displayName.trim().charAt(0) || 'U').toUpperCase();
+        const avatarHtml = student.avatarUrl
+            ? `<img src="${GATEWAY_URL}${student.avatarUrl}" alt="${displayName}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`
+            : `<div class="student-avatar">${initials}</div>`;
         return `
             <li class="student-item">
-                <div class="student-avatar">${initials}</div>
+                ${avatarHtml}
                 <div class="student-info">
                     <strong>${displayName}</strong>
-                    <span>${student.email || 'No email available'}</span>
                 </div>
             </li>
         `;
@@ -235,9 +235,8 @@ async function checkEnrollmentStatus(courseIdValue) {
     const user = getCurrentUser();
 
     if (!token || !user?.id) {
-        isUserEnrolled = false;
-        updateEnrollButtonState(false);
-        setChatLockState('Login and enroll in this course to join chat.');
+        alert('Please login to access this course');
+        window.location.href = '/login.html';
         return;
     }
 
@@ -246,21 +245,18 @@ async function checkEnrollmentStatus(courseIdValue) {
             headers: { Authorization: `Bearer ${token}` }
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to check enrollment status');
-        }
+        if (!response.ok) throw new Error('Failed to check enrollment');
 
         isUserEnrolled = await response.json();
-        updateEnrollButtonState(isUserEnrolled);
 
         if (!isUserEnrolled) {
-            setChatLockState('Enroll in this course to access the chat room.');
+            alert('You must be enrolled to access this course.');
+            window.location.href = '/courses.html';
         }
+
     } catch (error) {
-        console.error('Error checking enrollment status:', error);
-        isUserEnrolled = false;
-        updateEnrollButtonState(false);
-        setChatLockState('Chat is unavailable until enrollment is confirmed.');
+        console.error('Error checking enrollment:', error);
+        window.location.href = '/courses.html';
     }
 }
 
@@ -277,17 +273,15 @@ async function loadCourse() {
         if (!response.ok) throw new Error('Course not found');
 
         currentCourse = await response.json();
+
+        // ← Check enrollment FIRST before showing anything
+        await checkEnrollmentStatus(currentCourse.id);
+
+        // ← Only reaches here if enrolled (otherwise redirected)
         displayCourse(currentCourse);
 
-        await Promise.all([
-            checkEnrollmentStatus(currentCourse.id),
-            loadEnrolledStudents(currentCourse.id)
-        ]);
+        await loadEnrolledStudents(currentCourse.id);
 
-        if (isUserEnrolled) {
-            await loadChatHistory(currentCourse.id);
-            connectCourseChat(currentCourse.id);
-        }
     } catch (error) {
         console.error('Error loading course:', error);
         showError();
@@ -420,4 +414,12 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializePage);
 } else {
     initializePage();
+}
+
+function openCourseChat() {
+    if (!isUserEnrolled) {
+        alert('You must be enrolled to access the course chat.');
+        return;
+    }
+    window.location.href = '/chat.html?courseId=' + currentCourse.id;
 }
