@@ -17,7 +17,7 @@
     <div class="navbar-container">
         <div class="navbar-brand" onclick="window.location.href='courses.html'">
             <div class="logo-wrapper">
-                <img src="/img/logo.png" class="logo">
+                <img src="/img/logowhite.png" class="logo">
             </div>
             <div class="brand-text">
                 <h2>ITBook</h2>
@@ -25,15 +25,15 @@
             </div>
         </div>
         <div class="nav-links">
-            <a href="#" class="nav-link">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
+            <a href="account.html" class="nav-link">
+                <i class="fas fa-user-circle"></i>
+                <span>Account</span>
             </a>
-            <a href="/html/courses.html" class="nav-link active">
+            <a href="/courses.html" class="nav-link active">
                 <i class="fas fa-graduation-cap"></i>
                 <span>Courses</span>
             </a>
-            <a href="#" class="nav-link">
+            <a href="about.html" class="nav-link">
                 <i class="fas fa-info-circle"></i>
                 <span>About</span>
             </a>
@@ -45,9 +45,8 @@
                 <i class="fas fa-chevron-down"></i>
             </button>
             <div class="user-dropdown">
-                <a href="/courses.html?view=my"><i class="fas fa-book"></i> My Courses</a>
+                <a href="/my-courses.html?view=my"><i class="fas fa-book"></i> My Courses</a>
                 <a href="/account.html"><i class="fas fa-user-circle"></i> Account</a>
-                <a href="#"><i class="fas fa-cog"></i> Settings</a>
                 <div class="dropdown-divider"></div>
                 <a href="/login.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
@@ -108,34 +107,18 @@
             <button class="tab-nav-btn" onclick="switchTab('chat')">
                 <i class="fas fa-comments"></i>
                 <span>Chat</span>
-                <span class="chat-badge">12</span>
             </button>
         </div>
 
         <div class="content-grid">
             <!-- Main Content Area -->
             <div class="main-content">
+
                 <!-- Overview Tab -->
                 <div id="overview" class="tab-content active">
                     <div class="content-card">
                         <h2 class="content-title">About This Course</h2>
-                        <p id="overviewDesc" class="content-text">Learn the fundamentals of programming with hands-on projects and real-world examples. This course covers essential concepts and best practices.</p>
-
-                        <h3 class="content-subtitle">What You'll Learn</h3>
-                        <ul class="feature-list">
-                            <li><i class="fas fa-check-circle"></i> Core programming concepts and paradigms</li>
-                            <li><i class="fas fa-check-circle"></i> Data structures and algorithms</li>
-                            <li><i class="fas fa-check-circle"></i> Best coding practices and design patterns</li>
-                            <li><i class="fas fa-check-circle"></i> Real-world project development</li>
-                        </ul>
-
-                        <h3 class="content-subtitle">Requirements</h3>
-                        <ul class="feature-list">
-                            <li><i class="fas fa-check-circle"></i> Basic computer knowledge</li>
-                            <li><i class="fas fa-check-circle"></i> Commitment to learning 2-3 hours per week</li>
-                            <li><i class="fas fa-check-circle"></i> Passion for technology</li>
-                        </ul>
-
+                        <h3 id="overviewDesc" class="content-text"></h3>
                         <h3 class="content-subtitle">Enrolled Students</h3>
                         <ul id="studentsList" class="student-list">
                             <li class="student-list-empty">No students enrolled yet.</li>
@@ -180,59 +163,27 @@
 
                 <!-- Chat Tab -->
                 <div id="chat" class="tab-content">
-                    <div class="chat-container">
-                        <div class="chat-header">
-                            <div>
-                                <h3 class="chat-title">Course Discussion</h3>
-                                <p class="chat-subtitle">Connect with fellow learners</p>
-                            </div>
-                            <div class="online-badge">
-                                <i class="fas fa-circle"></i>
-                                <span>12 Online</span>
-                            </div>
-                        </div>
-
-                        <div class="messages" id="messageArea">
-                            <div class="message">
-                                <div class="message-avatar">J</div>
-                                <div class="message-body">
-                                    <div class="message-header">
-                                        <strong>John Doe</strong>
-                                        <span class="message-time">10:30 AM</span>
-                                    </div>
-                                    <p class="message-text">Great course! Really helpful content.</p>
-                                </div>
-                            </div>
-                            <div class="message">
-                                <div class="message-avatar">S</div>
-                                <div class="message-body">
-                                    <div class="message-header">
-                                        <strong>Sarah Smith</strong>
-                                        <span class="message-time">10:45 AM</span>
-                                    </div>
-                                    <p class="message-text">Does anyone have the solution to assignment 2?</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="chat-input-area">
-                            <input type="text" id="chatInput" placeholder="Type your message..." class="chat-input">
-                            <button id="sendButton" onclick="sendMessage()" class="send-btn">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
+                    <div class="content-card" style="text-align:center; padding: 3rem;">
+                        <i class="fas fa-comments" style="font-size:3rem; color:#667eea; margin-bottom:1rem;"></i>
+                        <h3>Course Discussion Room</h3>
+                        <p style="color:#666; margin-bottom:1.5rem;">Chat with fellow students enrolled in this course.</p>
+                        <button onclick="openCourseChat()" class="enroll-btn" style="display:inline-flex; width:auto; padding:0.8rem 2rem;">
+                            <i class="fas fa-comments"></i>
+                            <span>Open Course Chat</span>
+                        </button>
                     </div>
                 </div>
-            </div>
+
+            </div> <!-- close main-content -->
 
             <!-- Sidebar -->
             <aside class="sidebar">
                 <div class="enroll-card">
-                    <button id="enrollButton" class="enroll-btn" onclick="enrollCourse()">
-                        <i id="enrollButtonIcon" class="fas fa-plus"></i>
-                        <span id="enrollButtonText">Enroll Now</span>
+                    <button class="enroll-btn" onclick="openCourseChat()" style="background: linear-gradient(135deg,#667eea,#764ba2)">
+                        <i class="fas fa-comments"></i>
+                        <span>Open Chat</span>
                     </button>
-                    <p id="enrollNote" class="enroll-note">Join 50,000+ students learning today</p>
+                    <p class="enroll-note">You are enrolled in this course</p>
                 </div>
 
                 <div class="info-card">
@@ -269,9 +220,10 @@
                     </div>
                 </div>
             </aside>
-        </div>
-    </div>
-</div>
+
+        </div> <!-- close content-grid -->
+    </div> <!-- close content-wrapper -->
+</div> <!-- close course-container -->
 
 <!-- Error State -->
 <div id="errorMessage" class="error-state">
