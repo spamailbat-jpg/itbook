@@ -4,7 +4,129 @@
   <meta charset="UTF-8">
   <link rel="icon" href="/img/logowhite.png" type="image/png"/>
   <title>Log In</title>
-  <link rel="stylesheet" type="text/css" href="/css/loginStyle.css">
+  <link rel="stylesheet" type="text/css" href="/css/login.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+<div class="align">
+  <nav class="navbar">
+    <div class="logo">
+      <img src="/img/logowhite.png" alt="Logo">
+    </div>
+    <div class="site-name-login">
+      <b>[ ITBook ] <br></b>
+      <text>Connect with colleagues <br>and the community around <br> you on <b>ITBook</b>.</text>
+    </div>
+  </nav>
+  <div>
+    <div>
+      <img src="/img/collage.jpg" alt="IT collage" class="Background-image">
+    </div>
+    <div class="card">
+      <div class="head">
+        <div></div>
+        <a name="login" class="selected" href="login.html">Log in</a>
+        <a name="signUp" href="signUp.html">Sign up</a>
+        <div></div>
+      </div>
+      <div>
+        <form id="loginForm" action="#" method="post">
+          <div class="inputs">
+            <div class="input">
+              <input name="email" type="email" placeholder="Email" required>
+              <img src="/img/icons/mail.svg">
+            </div>
+            <div class="input">
+              <input type="password" name="password" id="password" placeholder="Password" required>
+              <img src="/img/icons/pass.svg">
+              <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+            </div>
+            <a name="forgot" href="resetPassword.html">Forgot your password?</a>
+            <br><br>
+          </div>
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  (function initLoginPage() {
+    const form = document.getElementById('loginForm');
+    const togglePassword = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
+
+    if (!form) return;
+
+    if (togglePassword && password) {
+    togglePassword.addEventListener('click', function() {
+        password.type = password.type === 'password' ? 'text' : 'password';
+        this.classList.toggle('fa-eye-slash');
+    });
+}
+
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const gatewayUrl = localStorage.getItem('gatewayUrl') || `${window.location.protocol}//localhost:8765`;
+      const payload = JSON.stringify({
+        email: formData.get('email'),
+        password: formData.get('password')
+      });
+
+      const maxRetries = 3;
+
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetch(`${gatewayUrl}/user-service/api/auth/login`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: payload
+          });
+
+          const data = await response.json();
+          const loginSucceeded = Boolean(data.success) || (response.ok && Boolean(data.token));
+
+          if (loginSucceeded) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            window.location.href = '/account.html';
+            return;
+          }
+
+          const serviceNotReady = response.status === 503 || /service not found/i.test(data.message || '');
+          if (serviceNotReady && attempt < maxRetries) {
+            await sleep(1200);
+            continue;
+          }
+
+          alert(data.message || 'Login failed');
+          return;
+        } catch (error) {
+          if (attempt < maxRetries) {
+            await sleep(1200);
+            continue;
+          }
+
+          console.error('Login request failed:', error);
+          alert('Login error: ' + (error.message || 'Unexpected error'));
+          return;
+        }
+      }
+    });
+  })();
+</script>
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="/img/logowhite.png" type="image/png"/>
+  <title>Log In</title>
+  <link rel="stylesheet" type="text/css" href="/css/login.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
