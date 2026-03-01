@@ -29,7 +29,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: row; 
+  flex-direction: row;
   margin: 10px;
 }
 
@@ -158,7 +158,7 @@ form {
 }
 
 a:hover {
-text-decoration:none; 
+text-decoration:none;
 }
 
 
@@ -216,5 +216,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color: rgba(255, 255, 255, 0.5);
 }
 
+.password-requirements p {
+    font-size: 12px;
+    margin: 4px 0;
+    color: #e74c3c;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
 
+.password-requirements i {
+    font-size: 13px;
+}
 
+input[type="password"], input[type="text"] {
+    padding-right: 45px !important;
+}
