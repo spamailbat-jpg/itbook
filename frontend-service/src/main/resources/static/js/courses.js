@@ -1,66 +1,89 @@
+'use strict';
+
 let courses = [];
-let myCoursesOnly = false;
+let enrolledCourseIds = new Set();
+
+function getToken() { return localStorage.getItem('token'); }
+function getUser()  { return JSON.parse(localStorage.getItem('user') || 'null'); }
 
 function isMyCoursesView() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('view') === 'my';
+    return new URLSearchParams(window.location.search).get('view') === 'my';
 }
 
 function updateCoursesHeader() {
-    const titleElement = document.querySelector('.section-title');
+    const titleElement    = document.querySelector('.section-title');
     const subtitleElement = document.querySelector('.section-subtitle');
+    if (!titleElement || !subtitleElement) return;
 
-    if (!titleElement || !subtitleElement) {
-        return;
-    }
-
-    if (myCoursesOnly) {
-        titleElement.textContent = 'My Courses';
+    if (isMyCoursesView()) {
+        titleElement.textContent    = 'My Courses';
         subtitleElement.textContent = 'Courses you are enrolled in';
     } else {
-        titleElement.textContent = 'Explore Courses';
+        titleElement.textContent    = 'Explore Courses';
         subtitleElement.textContent = 'Find the perfect course to advance your career';
     }
 }
 
+async function loadEnrolledIds() {
+    const token = getToken();
+    const user  = getUser();
+    if (!token || !user?.id) return;
+
+    try {
+        const res = await fetch(`${GATEWAY_URL}/courses-service/api/courses/user/${user.id}/courses`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const enrolled = await res.json();
+            enrolledCourseIds = new Set(enrolled.map(c => c.id));
+        }
+    } catch (e) {
+        console.error('Failed to load enrolled courses', e);
+    }
+}
+
 async function loadCourses() {
-    myCoursesOnly = isMyCoursesView();
     updateCoursesHeader();
 
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const token = getToken();
+    const user  = getUser();
+    const myView = isMyCoursesView();
 
-    if (myCoursesOnly && (!token || !user?.id)) {
+    if (myView && (!token || !user?.id)) {
         alert('Please login to view your courses');
         window.location.href = '/login.html';
         return;
     }
 
-    const endpoint = myCoursesOnly
+    const endpoint = myView
         ? `${GATEWAY_URL}/courses-service/api/courses/user/${user.id}/courses`
         : `${GATEWAY_URL}/courses-service/api/courses`;
 
     try {
-        const response = await fetch(endpoint, token ? {
+        // Load enrolled IDs in parallel with courses
+        await loadEnrolledIds();
+
+        const res = await fetch(endpoint, token ? {
             headers: { 'Authorization': `Bearer ${token}` }
         } : {});
 
-        if (!response.ok) throw new Error('Failed to fetch courses');
+        if (!res.ok) throw new Error('Failed to fetch courses');
 
-        courses = await response.json();
+        courses = await res.json();
         document.getElementById('loading').style.display = 'none';
         displayCourses(courses);
     } catch (error) {
         console.error('Error loading courses:', error);
-        document.getElementById('loading').innerHTML = '<div class="error-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load courses. Please try again later.</p></div>';
+        document.getElementById('loading').innerHTML =
+            '<div class="error-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load courses. Please try again later.</p></div>';
     }
 }
 
 async function enrollCourse(event, courseId) {
     event.stopPropagation();
 
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const token = getToken();
+    const user  = getUser();
 
     if (!token || !user?.id) {
         alert('Please login first');
@@ -69,21 +92,19 @@ async function enrollCourse(event, courseId) {
     }
 
     try {
-        const response = await fetch(`${GATEWAY_URL}/courses-service/api/courses/${courseId}/enroll/${user.id}`, {
+        const res = await fetch(`${GATEWAY_URL}/courses-service/api/courses/${courseId}/enroll/${user.id}`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        const message = await response.text();
+        const message = await res.text();
 
-        if (!response.ok && !message.toLowerCase().includes('already enrolled')) {
+        if (!res.ok && !message.toLowerCase().includes('already enrolled')) {
             alert(message || 'Failed to enroll');
             return;
         }
 
-        if (message) {
-            alert(message);
-        }
-
+        enrolledCourseIds.add(courseId);
+        displayCourses(courses); // re-render with updated enrollment state
         goToCourse(courseId);
     } catch (error) {
         console.error('Error enrolling:', error);
@@ -100,23 +121,38 @@ function displayCourses(coursesToDisplay) {
     grid.innerHTML = '';
 
     if (coursesToDisplay.length === 0) {
-        grid.innerHTML = `<div class="empty-state"><i class="fas fa-book-open"></i><p>${myCoursesOnly ? 'You are not enrolled in any courses yet.' : 'No courses found matching your search.'}</p></div>`;
+        grid.innerHTML = `<div class="empty-state"><i class="fas fa-book-open"></i>
+            <p>${isMyCoursesView() ? 'You are not enrolled in any courses yet.' : 'No courses found matching your search.'}</p>
+        </div>`;
         return;
     }
 
     coursesToDisplay.forEach((course, index) => {
+        const isEnrolled = enrolledCourseIds.has(course.id);
         const card = document.createElement('div');
         card.className = 'course-card';
         card.style.animationDelay = `${index * 0.1}s`;
+
+        const actionButton = isEnrolled
+            ? `<button class="enroll-btn enrolled-btn" onclick="goToCourse(${course.id}); event.stopPropagation();">
+                   <span>Continue</span>
+                   <i class="fas fa-check"></i>
+               </button>`
+            : `<button class="enroll-btn" onclick="enrollCourse(event, ${course.id})">
+                   <span>Enroll</span>
+                   <i class="fas fa-arrow-right"></i>
+               </button>`;
+
         card.innerHTML = `
             <div class="course-card-inner">
                 <div class="course-image">
                     <img src="/img/courses/${course.image}" alt="${course.title}" onerror="this.style.display='none'">
                     <div class="course-overlay">
-                        <button class="quick-view-btn" onclick="goToCourse(${course.id})">
+                        <button class="quick-view-btn" onclick="goToCourse(${course.id}); event.stopPropagation();">
                             <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
+                    ${isEnrolled ? '<div class="enrolled-badge"><i class="fas fa-check"></i> Enrolled</div>' : ''}
                 </div>
                 <div class="course-content">
                     <div class="course-header">
@@ -139,10 +175,7 @@ function displayCourses(coursesToDisplay) {
                                 <span>12 weeks</span>
                             </div>
                         </div>
-                        <button class="enroll-btn" onclick="enrollCourse(event, ${course.id})">
-                            <span>Enroll</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </button>
+                        ${actionButton}
                     </div>
                 </div>
             </div>
@@ -159,9 +192,9 @@ function displayCourses(coursesToDisplay) {
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('searchInput').addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
-        const filtered = courses.filter(course =>
-            course.title.toLowerCase().includes(query) ||
-            course.description.toLowerCase().includes(query)
+        const filtered = courses.filter(c =>
+            c.title.toLowerCase().includes(query) ||
+            c.description.toLowerCase().includes(query)
         );
         displayCourses(filtered);
     });
