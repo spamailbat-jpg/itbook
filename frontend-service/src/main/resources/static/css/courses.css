@@ -729,6 +729,16 @@ body {
   transform: translateX(4px);
 }
 
+
+
+.unenroll-btn {
+    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+}
+
+.unenroll-btn:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226) !important;
+}
+
 /* Empty State */
 .empty-state,
 .error-state {
